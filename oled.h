@@ -19,7 +19,8 @@ static const __flash byte BLANK[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 void shift_out(byte val, byte order);
 
-void shift_out_block(const __flash byte *block, byte inverted);
+//void shift_out_block(const __flash byte *block, byte inverted);
+void shift_out_block(const __memx byte *block, byte inverted);
 
 void send_command(byte command);
 void initialise_oled(void);
