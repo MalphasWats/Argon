@@ -17,7 +17,7 @@
 #define DC    3
 
 #define BTNS  2
-#define BTN_DELAY       180
+#define BTN_DELAY       1
 #define BTN_THRESHOLD   2
 
 /* Button ADC Values */

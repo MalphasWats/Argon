@@ -229,7 +229,7 @@ void display_on(void)
     PORTB |= 1 << DC;       // DATA
 }
 
-void display_image(const byte *img, byte col, byte row, byte width, byte height)
+void display_image(const __memx byte *img, byte col, byte row, byte width, byte height)
 {
     for (byte h=0 ; h<height ; h++)
     {

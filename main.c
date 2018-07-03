@@ -41,7 +41,7 @@ int main (void)
         {
             if (btn_val >= _UP-BTN_THRESHOLD && btn_val <= _UP+BTN_THRESHOLD)
             {
-                click();
+                //click();
                 
                 player.y -= 1;
                 if (player.y > 250)
@@ -53,7 +53,7 @@ int main (void)
             }
             else if(btn_val >= _DOWN-BTN_THRESHOLD && btn_val <= _DOWN+BTN_THRESHOLD)
             {
-                click();
+                //click();
                 
                 player.y += 1;
                 if (player.y > HEIGHT-8)
@@ -65,7 +65,7 @@ int main (void)
             }
             else if(btn_val >= _LEFT-BTN_THRESHOLD && btn_val <= _LEFT+BTN_THRESHOLD)
             {
-                click();
+                //click();
                 
                 player.x -= 1;
                 if (player.x > 250)
@@ -77,7 +77,7 @@ int main (void)
             }
             else if(btn_val >= _RIGHT-BTN_THRESHOLD && btn_val <= _RIGHT+BTN_THRESHOLD)
             {
-                click();
+                //click();
                 
                 player.x += 1;
                 if (player.x > WIDTH)
@@ -127,10 +127,10 @@ int main (void)
         if (shift)
         {
             byte glyph[8];
-            for(byte i ; i<8 ; i++)
+            for(byte i=0 ; i<8 ; i++)
             {
                 //TODO: Needs to combine with tile beneath
-                glyph[i] = GLYPHS[player.glyph*8] >> shift;
+                glyph[i] = GLYPHS[player.glyph*8+i] >> shift;
             }
             
             PORTB &= ~(1 << DC);                    // COMMAND
@@ -143,10 +143,10 @@ int main (void)
             
             shift_out_block(&glyph[0], FALSE);
             
-            for(byte i ; i<8 ; i++)
+            for(byte i=0 ; i<8 ; i++)
             {
                 //TODO: Needs to combine with tile beneath
-                glyph[i] = GLYPHS[player.glyph*8] << 8-shift;
+                glyph[i] = GLYPHS[player.glyph*8+i] << (8-shift);
             }
             
             PORTB &= ~(1 << DC);                    // COMMAND

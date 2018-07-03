@@ -28,7 +28,7 @@ void clear_display(void);
 void display_off(void);
 void display_on(void);
 
-void display_image(const byte *img, byte col, byte row, byte width, byte height);
+void display_image(const __memx byte *img, byte col, byte row, byte width, byte height);
 void display_block(const byte *block, byte col, byte row);
 void display_block_(const byte *block, byte col, byte row, byte inverted);
 
