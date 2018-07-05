@@ -32,8 +32,6 @@ int main (void)
     
     delay_ms(SPLASH_DELAY);
     
-    //byte map_dirty = TRUE;
-    
     sprite sprites[MAX_SPRITES] = {
         {.glyph=PLAYER_SHIP, .x=2, .y=2*8},
         {.glyph=ENEMY_SHIP, .x=12*8, .y=0*8},
@@ -50,177 +48,101 @@ int main (void)
         t = millis();
         
         word btn_val = read_buttons();
+        
+        // TODO: Need to map values with A held down
+        if (btn_val >= _UP-BTN_THRESHOLD && btn_val <= _UP+BTN_THRESHOLD)
+        {
+            sprites[0].y -= SPEED;
+            if (sprites[0].y > 250)
+                sprites[0].y = 0;
+        }
+        else if(btn_val >= _DOWN-BTN_THRESHOLD && btn_val <= _DOWN+BTN_THRESHOLD)
+        {
+            sprites[0].y += SPEED;
+            if (sprites[0].y > HEIGHT-8)
+                sprites[0].y = HEIGHT-8;
+        }
+        else if(btn_val >= _LEFT-BTN_THRESHOLD && btn_val <= _LEFT+BTN_THRESHOLD)
+        {
+            sprites[0].x -= SPEED;
+            if (sprites[0].x > 250)
+                sprites[0].x = 0;
+        }
+        else if(btn_val >= _RIGHT-BTN_THRESHOLD && btn_val <= _RIGHT+BTN_THRESHOLD)
+        {
+            sprites[0].x += SPEED;
+            if (sprites[0].x > WIDTH-8)
+                sprites[0].x = WIDTH-8;
+        }
         if (btn_timer == 0)
         {
-            if (btn_val >= _UP-BTN_THRESHOLD && btn_val <= _UP+BTN_THRESHOLD)
-            {
-                //click();
-                
-                sprites[0].y -= SPEED;
-                if (sprites[0].y > 250)
-                    sprites[0].y = 0;
-                
-                //map_dirty = TRUE;
-                
-                btn_timer = t;
-            }
-            else if(btn_val >= _DOWN-BTN_THRESHOLD && btn_val <= _DOWN+BTN_THRESHOLD)
-            {
-                //click();
-                
-                sprites[0].y += SPEED;
-                if (sprites[0].y > HEIGHT-8)
-                    sprites[0].y = HEIGHT-8;
-                
-                //map_dirty = TRUE;
-                
-                btn_timer = t;
-            }
-            else if(btn_val >= _LEFT-BTN_THRESHOLD && btn_val <= _LEFT+BTN_THRESHOLD)
-            {
-                //click();
-                
-                sprites[0].x -= SPEED;
-                if (sprites[0].x > 250)
-                    sprites[0].x = 0;
-                
-                //map_dirty = TRUE;
-                
-                btn_timer = t;
-            }
-            else if(btn_val >= _RIGHT-BTN_THRESHOLD && btn_val <= _RIGHT+BTN_THRESHOLD)
-            {
-                //click();
-                
-                sprites[0].x += SPEED;
-                if (sprites[0].x > WIDTH-8)
-                    sprites[0].x = WIDTH-8;
-                
-                //map_dirty = TRUE;
-                
-                btn_timer = t;
-            }
-            else if(btn_val >= _A-BTN_THRESHOLD && btn_val <= _A+BTN_THRESHOLD)
+            if(btn_val >= _A-BTN_THRESHOLD && btn_val <= _A+BTN_THRESHOLD)
             {
                 click();
-                btn_timer = t;
+                btn_timer = t+BTN_DELAY;
             }
             else if(btn_val >= _B-BTN_THRESHOLD && btn_val <= _B+BTN_THRESHOLD)
             {
                 click();
-                btn_timer = t;
+                btn_timer = t+BTN_DELAY;
             }
             else if(btn_val >= _C-BTN_THRESHOLD && btn_val <= _C+BTN_THRESHOLD)
             {
                 click();
-                btn_timer = t;
+                btn_timer = t+BTN_DELAY;
             }
         }
         
-        if (t - btn_timer >= BTN_DELAY)
+        if (t > btn_timer)
             btn_timer = 0;
+            
+        byte buffer[128];
+        byte digits[4];
+        byte fps = 1000 / delta;
         
-        //if (map_dirty)
-        //{
-            set_display_col_row(0, 0);
-            byte buffer;
-            byte digits[4];
-            byte fps = 1000 / delta;
-            for (byte d=0 ; d<4 ; d++)
+        //set_display_col_row(0, 0);
+        
+        for (byte d=0 ; d<4 ; d++)
+        {
+            digits[3-d] = ((fps % 10)+1)*8;
+            fps = fps / 10;
+        }
+        
+        for (byte row=0 ; row<SCREEN_ROWS ; row++)
+        {
+            for (byte x=0 ; x<WIDTH ; x++)
             {
-                digits[3-d] = ((fps % 10)+1)*8;
-                fps = fps / 10;
+                byte col = x/8;
+                byte offset = x%8;
+                buffer[x] = GLYPHS[MAP[ SCREEN_COLUMNS * row + col ]*8 + offset];
             }
-            for (byte row=0 ; row<SCREEN_ROWS ; row++)
+            
+            for(byte s=0 ; s<MAX_SPRITES ; s++)
             {
-                //set_display_col_row(0, row);
+                byte r = sprites[s].y/8;
+                byte r_offset = sprites[s].y%8;
                 
-                
-                for (byte x=0 ; x<WIDTH ; x++)
+                if (row == r)
                 {
-                    byte col = x/8;
-                    byte offset = x%8;
-                    buffer = GLYPHS[MAP[ SCREEN_COLUMNS * row + col ]*8 + offset];
-                    
-                    for(byte e=0 ; e<MAX_SPRITES ; e++)
-                    {
-                        byte r = sprites[e].y/8;
-                        byte r_offset = sprites[e].y%8;
-                        if (x >= sprites[e].x && x < sprites[e].x+8)
-                        {
-                            if (row == r)
-                            {
-                                buffer |= (GLYPHS[sprites[e].glyph*8+(x-sprites[e].x)] >> r_offset);
-                            }
-                            else if (row == r+1 && r_offset > 0)
-                            {
-                                buffer |= (GLYPHS[sprites[e].glyph*8+(x-sprites[e].x)] << (8-r_offset));
-                            }
-                        }
-                    }
-                    
-                    if (row == 7 && col < 4)
-                    {
-                        buffer = GLYPHS[digits[col]+offset];
-                    }
-                    
-                    shift_out_byte(buffer);
+                    for(byte i=0 ; i<8 ; i++)
+                        buffer[sprites[s].x+i] |= GLYPHS[sprites[s].glyph*8+i] >> r_offset;
+                }
+                else if (row == r+1 && r_offset > 0)
+                {
+                    for(byte i=0 ; i<8 ; i++)
+                        buffer[sprites[s].x+i] |= GLYPHS[sprites[s].glyph*8+i] << (8-r_offset);
                 }
             }
-            
-            //map_dirty = FALSE;
-        //}
-        
-        /*byte row = player.y / 8;
-        byte shift = player.y % 8;
-        
-        if (shift)
-        {
-            byte glyph[8];
-            for(byte i=0 ; i<8 ; i++)
+                
+            if (row == 7)
             {
-                //TODO: Needs to combine with tile beneath
-                glyph[i] = GLYPHS[player.glyph*8+i] >> shift;
+                for (byte d=0 ; d<4*8 ; d++)
+                    buffer[d] = GLYPHS[digits[d/8]+d%8];
             }
             
-            PORTB &= ~(1 << DC);                    // COMMAND
-    
-            send_command(0xB0 + row);               // PAGEADDR
-            send_command((player.x) & 0x0F);           // Column start address (0 = reset)
-            send_command(0x10 | ((player.x) >> 4));    // LOW COL ADDR
-            
-            PORTB |= 1 << DC;                       // DATA
-            
-            shift_out_block(&glyph[0], FALSE);
-            
-            for(byte i=0 ; i<8 ; i++)
-            {
-                //TODO: Needs to combine with tile beneath
-                glyph[i] = GLYPHS[player.glyph*8+i] << (8-shift);
-            }
-            
-            PORTB &= ~(1 << DC);                    // COMMAND
-    
-            send_command(0xB0 + row+1);               // PAGEADDR
-            send_command((player.x) & 0x0F);           // Column start address (0 = reset)
-            send_command(0x10 | ((player.x) >> 4));    // LOW COL ADDR
-            
-            PORTB |= 1 << DC;                       // DATA
-            
-            shift_out_block(&glyph[0], FALSE);
+            for (byte x=0 ; x<WIDTH ; x++)
+                shift_out_byte(buffer[x]);
         }
-        else
-        {
-            PORTB &= ~(1 << DC);                    // COMMAND
-    
-            send_command(0xB0 + row);               // PAGEADDR
-            send_command((player.x) & 0x0F);           // Column start address (0 = reset)
-            send_command(0x10 | ((player.x) >> 4));    // LOW COL ADDR
-            
-            PORTB |= 1 << DC;                       // DATA
-            
-            shift_out_block(&GLYPHS[player.glyph*8], FALSE);
-        }*/
         
         delta_sum += millis() - t;
         delta_count += 1;
