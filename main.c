@@ -41,6 +41,16 @@ int main (void)
         {.glyph=ENEMY_SHIP, .x=12*8, .y=4*8},
         {.glyph=ENEMY_SHIP, .x=12*8, .y=5*8},
         {.glyph=ENEMY_SHIP, .x=12*8, .y=6*8},
+            
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=0*8},
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=1*8},
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=2*8},
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=3*8},
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=4*8},
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=5*8},
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=6*8},
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=7*8},
+            
     };
     
     for(ever)
@@ -79,7 +89,7 @@ int main (void)
             if(btn_val >= _A-BTN_THRESHOLD && btn_val <= _A+BTN_THRESHOLD)
             {
                 click();
-                if (sprites[1].glyph == 0)
+                if (sprites[1].glyph == 0 && sprites[0].x < 120)
                 {
                     sprites[1].glyph = PLASMA_BOLT;
                     sprites[1].x = sprites[0].x+8;
@@ -107,7 +117,7 @@ int main (void)
         byte digits[4];
         byte fps = 1000 / delta;
         
-        //set_display_col_row(0, 0);
+        set_display_col_row(0, 0);
         
         for (byte d=0 ; d<4 ; d++)
         {
@@ -157,7 +167,7 @@ int main (void)
             if (sprites[s].glyph == PLASMA_BOLT)
             {
                 sprites[s].x += 6;
-                if (sprites[s].x > 128)
+                if (sprites[s].x >= 120)
                 {
                     sprites[s].glyph = 0;
                     sprites[s].x = 0;
