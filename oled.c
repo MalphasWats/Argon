@@ -20,32 +20,103 @@ void send_command(byte command)
     }
 }
 
-void shift_out(byte val, byte order)
+void shift_out_byte(byte b)
 {
-    byte b;
-    for (byte i = 0; i < 8; i++)  
+    if ( b & (1 << 0) )
     {
-        if (order == LSBFIRST)
-        {
-            b = val & (1 << i);
-        }
-        else
-        {
-            b = val & (1 << (7 - i));
-        }
-        
-        if ( b )
-        {
-            PORTB |= 1 << SDA;
-        }
-        else
-        {
-            PORTB &= ~(1 << SDA);
-        }
-        
-        PORTB |= 1 << SCL;      // HIGH
-        PORTB &= ~(1 << SCL);   // LOW
+        PORTB |= 1 << SDA;
     }
+    else
+    {
+        PORTB &= ~(1 << SDA);
+    }
+    
+    PORTB |= 1 << SCL;      // HIGH
+    PORTB &= ~(1 << SCL);   // LOW
+    
+    if ( b & (1 << 1) )
+    {
+        PORTB |= 1 << SDA;
+    }
+    else
+    {
+        PORTB &= ~(1 << SDA);
+    }
+    
+    PORTB |= 1 << SCL;      // HIGH
+    PORTB &= ~(1 << SCL);   // LOW
+    
+    if ( b & (1 << 2) )
+    {
+        PORTB |= 1 << SDA;
+    }
+    else
+    {
+        PORTB &= ~(1 << SDA);
+    }
+    
+    PORTB |= 1 << SCL;      // HIGH
+    PORTB &= ~(1 << SCL);   // LOW
+    
+    if ( b & (1 << 3) )
+    {
+        PORTB |= 1 << SDA;
+    }
+    else
+    {
+        PORTB &= ~(1 << SDA);
+    }
+    
+    PORTB |= 1 << SCL;      // HIGH
+    PORTB &= ~(1 << SCL);   // LOW
+    
+    if ( b & (1 << 4) )
+    {
+        PORTB |= 1 << SDA;
+    }
+    else
+    {
+        PORTB &= ~(1 << SDA);
+    }
+    
+    PORTB |= 1 << SCL;      // HIGH
+    PORTB &= ~(1 << SCL);   // LOW
+    
+    if ( b & (1 << 5) )
+    {
+        PORTB |= 1 << SDA;
+    }
+    else
+    {
+        PORTB &= ~(1 << SDA);
+    }
+    
+    PORTB |= 1 << SCL;      // HIGH
+    PORTB &= ~(1 << SCL);   // LOW
+    
+    if ( b & (1 << 6) )
+    {
+        PORTB |= 1 << SDA;
+    }
+    else
+    {
+        PORTB &= ~(1 << SDA);
+    }
+    
+    PORTB |= 1 << SCL;      // HIGH
+    PORTB &= ~(1 << SCL);   // LOW
+    
+    if ( b & (1 << 7) )
+    {
+        PORTB |= 1 << SDA;
+    }
+    else
+    {
+        PORTB &= ~(1 << SDA);
+    }
+    
+    PORTB |= 1 << SCL;      // HIGH
+    PORTB &= ~(1 << SCL);   // LOW
 }
 
 /* Un-rolling the loop makes this much faster */
@@ -256,7 +327,7 @@ void set_display_col_row(byte col, byte row)
     PORTB |= 1 << DC;                       // DATA
 }
 
-void display_block(const byte *block, byte col, byte row)
+void display_block(const __memx byte *block, byte col, byte row)
 {
     set_display_col_row(col, row);
     shift_out_block(block, FALSE);

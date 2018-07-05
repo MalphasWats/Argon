@@ -1,9 +1,9 @@
 from PIL import Image
 
-MAP = "title_screen"
-OFFSET = 11
+MAP = "bg"
+OFFSET = 15
 
-im = Image.open("title_screen.png")
+im = Image.open("bg.png")
 pixels = list(im.getdata())
 
 def extract_block(offsetX, offsetY):
@@ -26,9 +26,9 @@ for y in range(im.size[1]//8):
         if b not in glyphs:
             glyphs.append(b)
 
-f = open('tiles.txt', 'w')
+f = open('bg_tiles.txt', 'w')
 for g in glyphs:
-    f.write('\t')
+    f.write('    ')
     f.write(g)
     f.write('\n')
 
@@ -56,7 +56,7 @@ for y in range(im.size[1]//8):
 while len(tiles) > 0:
     row = tiles[0:16]
     tiles = tiles[16:]
-    line = """\t{:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3},
+    line = """    {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3}, {:>3},
 """
     f.write(line.format(*row))
 
