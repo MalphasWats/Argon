@@ -15,7 +15,7 @@ typedef struct sprite {
 
 word delta_sum = 0;
 word delta_count = 0;
-byte delta= 0;
+byte delta = 0;
 
 int main (void) 
 {    
@@ -34,7 +34,7 @@ int main (void)
     
     sprite sprites[MAX_SPRITES] = {
         {.glyph=PLAYER_SHIP, .x=2, .y=2*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=0*8},
+        {.glyph=0, .x=0, .y=0},
         {.glyph=ENEMY_SHIP, .x=12*8, .y=1*8},
         {.glyph=ENEMY_SHIP, .x=12*8, .y=2*8},
         {.glyph=ENEMY_SHIP, .x=12*8, .y=3*8},
@@ -79,6 +79,13 @@ int main (void)
             if(btn_val >= _A-BTN_THRESHOLD && btn_val <= _A+BTN_THRESHOLD)
             {
                 click();
+                if (sprites[1].glyph == 0)
+                {
+                    sprites[1].glyph = PLASMA_BOLT;
+                    sprites[1].x = sprites[0].x+8;
+                    sprites[1].y = sprites[0].y;
+                }
+                
                 btn_timer = t+BTN_DELAY;
             }
             else if(btn_val >= _B-BTN_THRESHOLD && btn_val <= _B+BTN_THRESHOLD)
@@ -142,6 +149,21 @@ int main (void)
             
             for (byte x=0 ; x<WIDTH ; x++)
                 shift_out_byte(buffer[x]);
+        }
+        
+        /* Update Sprites */
+        for(byte s=1 ; s<MAX_SPRITES ; s++)
+        {
+            if (sprites[s].glyph == PLASMA_BOLT)
+            {
+                sprites[s].x += 6;
+                if sprites[s].x > 128)
+                {
+                    sprites[s].glyph = 0;
+                    sprites[s].x = 0;
+                    sprites[s].y = 0;
+                }
+            }
         }
         
         delta_sum += millis() - t;
