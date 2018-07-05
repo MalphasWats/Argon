@@ -157,7 +157,7 @@ int main (void)
             if (sprites[s].glyph == PLASMA_BOLT)
             {
                 sprites[s].x += 6;
-                if sprites[s].x > 128)
+                if (sprites[s].x > 128)
                 {
                     sprites[s].glyph = 0;
                     sprites[s].x = 0;
