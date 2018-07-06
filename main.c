@@ -11,6 +11,7 @@ typedef struct sprite {
     byte glyph;
     byte x;
     byte y;
+    byte colliding;
 } sprite;
 
 word delta_sum = 0;
@@ -33,25 +34,27 @@ int main (void)
     delay_ms(SPLASH_DELAY);
     
     sprite sprites[MAX_SPRITES] = {
-        {.glyph=PLAYER_SHIP, .x=2, .y=2*8},
-        {.glyph=0, .x=0, .y=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=1*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=2*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=3*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=4*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=5*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=6*8},
+        {.glyph=0, .x=0, .y=0, .colliding=FALSE},
+        {.glyph=0, .x=0, .y=0, .colliding=FALSE},
+        {.glyph=0, .x=0, .y=0, .colliding=FALSE},
+        {.glyph=0, .x=0, .y=0, .colliding=FALSE},
+        {.glyph=0, .x=0, .y=0, .colliding=FALSE},
+        {.glyph=0, .x=0, .y=0, .colliding=FALSE},
+        {.glyph=0, .x=0, .y=0, .colliding=FALSE},
             
-        {.glyph=ENEMY_SHIP, .x=11*8, .y=0*8},
-        {.glyph=ENEMY_SHIP, .x=11*8, .y=1*8},
-        {.glyph=ENEMY_SHIP, .x=11*8, .y=2*8},
-        {.glyph=ENEMY_SHIP, .x=11*8, .y=3*8},
-        {.glyph=ENEMY_SHIP, .x=11*8, .y=4*8},
-        {.glyph=ENEMY_SHIP, .x=11*8, .y=5*8},
-        {.glyph=ENEMY_SHIP, .x=11*8, .y=6*8},
-        {.glyph=ENEMY_SHIP, .x=11*8, .y=7*8},
-            
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=0*8, .colliding=FALSE},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=1*8, .colliding=FALSE},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=2*8, .colliding=FALSE},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=3*8, .colliding=FALSE},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=4*8, .colliding=FALSE},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=5*8, .colliding=FALSE},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=6*8, .colliding=FALSE},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=7*8, .colliding=FALSE},
+        
+        {.glyph=PLAYER_SHIP, .x=2, .y=2*8, .colliding=FALSE},
     };
+    
+    sprite *player = &sprites[MAX_SPRITES-1];
     
     for(ever)
     {
@@ -62,38 +65,38 @@ int main (void)
         // TODO: Need to map values with A held down
         if (btn_val >= _UP-BTN_THRESHOLD && btn_val <= _UP+BTN_THRESHOLD)
         {
-            sprites[0].y -= SPEED;
-            if (sprites[0].y > 250)
-                sprites[0].y = 0;
+            player->y -= SPEED;
+            if (player->y > 250)
+                player->y = 0;
         }
         else if(btn_val >= _DOWN-BTN_THRESHOLD && btn_val <= _DOWN+BTN_THRESHOLD)
         {
-            sprites[0].y += SPEED;
-            if (sprites[0].y > HEIGHT-8)
-                sprites[0].y = HEIGHT-8;
+            player->y += SPEED;
+            if (player->y > HEIGHT-8)
+                player->y = HEIGHT-8;
         }
         else if(btn_val >= _LEFT-BTN_THRESHOLD && btn_val <= _LEFT+BTN_THRESHOLD)
         {
-            sprites[0].x -= SPEED;
-            if (sprites[0].x > 250)
-                sprites[0].x = 0;
+            player->x -= SPEED;
+            if (player->x > 250)
+                player->x = 0;
         }
         else if(btn_val >= _RIGHT-BTN_THRESHOLD && btn_val <= _RIGHT+BTN_THRESHOLD)
         {
-            sprites[0].x += SPEED;
-            if (sprites[0].x > WIDTH-8)
-                sprites[0].x = WIDTH-8;
+            player->x += SPEED;
+            if (player->x > WIDTH-8)
+                player->x = WIDTH-8;
         }
         if (btn_timer == 0)
         {
             if(btn_val >= _A-BTN_THRESHOLD && btn_val <= _A+BTN_THRESHOLD)
             {
                 click();
-                if (sprites[1].glyph == 0 && sprites[0].x < 120)
+                if (sprites[1].glyph == 0 && player->x < 120)
                 {
                     sprites[1].glyph = PLASMA_BOLT;
-                    sprites[1].x = sprites[0].x+8;
-                    sprites[1].y = sprites[0].y;
+                    sprites[1].x = player->x+8;
+                    sprites[1].y = player->y;
                 }
                 
                 btn_timer = t+BTN_DELAY;
@@ -142,12 +145,22 @@ int main (void)
                 if (row == r)
                 {
                     for(byte i=0 ; i<8 ; i++)
+                    {
+                        if (buffer[sprites[s].x+i] != GLYPHS[MAP[ SCREEN_COLUMNS * row + (sprites[s].x/8) ]*8 + r_offset])
+                            sprites[s].colliding = TRUE;
+                        
                         buffer[sprites[s].x+i] |= GLYPHS[sprites[s].glyph*8+i] >> r_offset;
+                    }
                 }
                 else if (row == r+1 && r_offset > 0)
                 {
                     for(byte i=0 ; i<8 ; i++)
+                    {
+                        if (buffer[sprites[s].x+i] != GLYPHS[MAP[ SCREEN_COLUMNS * row + (sprites[s].x/8) ]*8 + r_offset])
+                            sprites[s].colliding = TRUE;
+                    
                         buffer[sprites[s].x+i] |= GLYPHS[sprites[s].glyph*8+i] << (8-r_offset);
+                    }
                 }
             }
                 
@@ -162,7 +175,7 @@ int main (void)
         }
         
         /* Update Sprites */
-        for(byte s=1 ; s<MAX_SPRITES ; s++)
+        for(byte s=0 ; s<MAX_SPRITES ; s++)
         {
             if (sprites[s].glyph == PLASMA_BOLT)
             {
@@ -172,6 +185,17 @@ int main (void)
                     sprites[s].glyph = 0;
                     sprites[s].x = 0;
                     sprites[s].y = 0;
+                }
+            }
+            else if (sprites[s].glyph == ENEMY_SHIP)
+            {
+                sprites[s].x -= 2;
+                if (sprites[s].colliding || sprites[s].x <= 0)
+                {
+                    sprites[s].glyph=0;
+                    sprites[s].x = 0;
+                    sprites[s].y = 0;
+                    sprites[s].colliding = FALSE;
                 }
             }
         }
