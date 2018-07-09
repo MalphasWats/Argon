@@ -129,14 +129,20 @@ int main (void)
         if (t > btn_timer)
             btn_timer = 0;
         
+        /* DRAW LOOP */
         set_display_col_row(0, 0);
         for (byte row=0 ; row<SCREEN_ROWS ; row++)
         {
-            for (byte x=0 ; x<SCREEN_WIDTH ; x++)
+            for (byte col=0 ; col<SCREEN_COLUMNS ; col++)
             {
-                byte col = x/8;
-                byte offset = x%8;
-                buffer[x] = GLYPHS[MAP[ SCREEN_COLUMNS * row + col ]*8 + offset];
+                buffer[col*8+0] = GLYPHS[MAP[ SCREEN_COLUMNS * row + col ]*8 + 0];
+                buffer[col*8+1] = GLYPHS[MAP[ SCREEN_COLUMNS * row + col ]*8 + 1];
+                buffer[col*8+2] = GLYPHS[MAP[ SCREEN_COLUMNS * row + col ]*8 + 2];
+                buffer[col*8+3] = GLYPHS[MAP[ SCREEN_COLUMNS * row + col ]*8 + 3];
+                buffer[col*8+4] = GLYPHS[MAP[ SCREEN_COLUMNS * row + col ]*8 + 4];
+                buffer[col*8+5] = GLYPHS[MAP[ SCREEN_COLUMNS * row + col ]*8 + 5];
+                buffer[col*8+6] = GLYPHS[MAP[ SCREEN_COLUMNS * row + col ]*8 + 6];
+                buffer[col*8+7] = GLYPHS[MAP[ SCREEN_COLUMNS * row + col ]*8 + 7];
             }
             
             for(byte s=0 ; s<MAX_SPRITES ; s++)
