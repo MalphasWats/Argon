@@ -33,7 +33,7 @@ int main (void)
     
     PORTB |= 1 << DC;           // DATA
     
-    display_image(&LOGO[0], 3, 3, 10, 2);
+    display_image(&LOGO[0], 3*8, 3, 10, 2);
     crap_beep(_A5, 140);
     delay_ms(5);
     crap_beep(_A8, 60);
@@ -191,7 +191,7 @@ int main (void)
             sprites[s].x += sprites[s].xv;
             sprites[s].y += sprites[s].yv;
             // Collision detection
-            for(byte _s=0 ; _s<MAX_SPRITES ; _s++)
+            /*for(byte _s=0 ; _s<MAX_SPRITES ; _s++)
             {
                 // Don't check self! Also, sprites can't collide with other sprites of same type
                 if (s != _s && sprites[s].glyph != sprites[_s].glyph)
@@ -208,7 +208,7 @@ int main (void)
                         sprites[_s].y = 0;
                     }
                 }
-            }
+            }*/
             
             if (sprites[s].glyph == PLASMA_BOLT)
             {

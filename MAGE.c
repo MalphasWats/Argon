@@ -351,7 +351,7 @@ void initialise_oled(void)
 
 void clear_display(void)
 {
-    for (byte row=0 ; row<SCREEN_HEIGHT/8 ; row++)
+    for (byte row=0 ; row<SCREEN_ROWS ; row++)
     {
         for (byte col=0 ; col<SCREEN_WIDTH ; col++)
         {
@@ -378,7 +378,7 @@ void display_image(const __memx byte *img, byte col, byte row, byte width, byte 
 {
     for (byte h=0 ; h<height ; h++)
     {
-        set_display_col_row(col, row+h);
+        set_display_col_row(col*8, row+h);
         
         for (byte w=0 ; w<width ; w++)
             shift_out_block(&img[(width * h + w)*8], FALSE);

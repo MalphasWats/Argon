@@ -38,8 +38,8 @@
 #define SCREEN_WIDTH    128
 #define SCREEN_HEIGHT   64
 
-#define SCREEN_ROWS     16
-#define SCREEN_COLUMNS  8
+#define SCREEN_ROWS     8
+#define SCREEN_COLUMNS  16
 
 // http://www.soundoctor.com/freq.htm
 //      NOTE    PERIOD   FREQ.  Note        
