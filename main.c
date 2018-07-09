@@ -227,9 +227,9 @@ int main (void)
                     sprites[s].xv *= -1;
                     sprites[s].x += sprites[s].xv;
                     if (sprites[s].y > 32)
-                        sprites[s].vy = 1;
+                        sprites[s].yv = 1;
                     else
-                        sprites[s].vy = -1;
+                        sprites[s].yv = -1;
                 }
                 if (sprites[s].y <= 0 || sprites[s].y >= SCREEN_HEIGHT-8)
                 {
