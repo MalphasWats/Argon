@@ -1,6 +1,77 @@
-#include <avr/io.h>
+#include "MAGE.h"
 
-#include "oled.h"
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+
+word _millis = 0;
+
+word rngSEED = 5;
+word rng( void )
+{
+    rngSEED = (rngSEED*rngA +rngC) % rngM;
+    return rngSEED;
+}
+
+void delay_ms( word ms )
+{
+   for (word i=0; i < ms; i++)
+   {
+      _delay_ms(1);
+   }
+}
+
+void delay_us( word us )
+{
+   for (word i=0; i < us; i++)
+   {
+      _delay_us(1);
+   }
+}
+
+word read_buttons()
+{
+    
+    ADCSRA = 0xC7;
+    
+    while(ADCSRA & (1<<ADSC));
+    
+    byte low = ADCL;
+    byte high = ADCH;
+    
+    return (high << 8) | low;
+}
+
+void initialise( void )
+{
+    DDRB = (1<<SDA) | (1<<DC) | (1<<SCL) | (1<<SND); // Configure Outputs
+    
+    ADMUX = 0x00 | BTNS;    // Configure analog input
+    
+    /* Initialise Timer */
+    TCCR1 = 0x86;           // CTC Mode, CK/32 prescale (250)
+    TIMSK |= 0x40;          // Enable OCIE1A Compare Interrupt
+    
+    sei();                  // Enable interrupts
+    
+                 //                     F_CPU   Prescale  Timer frequency (1 ms)
+    OCR1A = 250; // Set compare value (8000000Hz / 32) / 1000Hz
+    
+    initialise_oled();
+    clear_display();
+}
+
+ISR(TIMER1_COMPA_vect)
+{
+    _millis += 1;
+}
+
+word millis( void )
+{
+    return _millis;
+}
+
+/* OLED Functions */
 
 void send_command(byte command)
 {
@@ -120,7 +191,6 @@ void shift_out_byte(byte b)
 }
 
 /* Un-rolling the loop makes this much faster */
-//void shift_out_block(const __flash byte *block, byte inverted)
 void shift_out_block(const __memx byte *block, byte inverted)
 {
     byte b;
@@ -237,7 +307,7 @@ void initialise_oled(void)
     send_command(0x80);         // the suggested ratio 0x80
 
     send_command(0xA8 );        // SSD1306_SETMULTIPLEX
-    send_command(HEIGHT - 1);
+    send_command(SCREEN_HEIGHT - 1);
 
     send_command(0xD3 );        // SETDISPLAYOFFSET
     send_command(0x0);          // no offset
@@ -271,17 +341,21 @@ void initialise_oled(void)
     //send_command(0x2E );        // DEACTIVATE_SCROLL
 
     send_command(0xAF);         // DISPLAYON
+    
+    send_command(0xB0 + 0);           // PAGEADDR (0 = reset)
+    send_command(0 & 0x0F);           // Column start address (0 = reset)
+    send_command(0x10 | (0 >> 4));    // LOW COL ADDR
+    
+    PORTB |= 1 << DC;           // DATA
 }
 
 void clear_display(void)
 {
-    for (byte row=0 ; row<SCREEN_ROWS ; row++)
+    for (byte row=0 ; row<SCREEN_HEIGHT/8 ; row++)
     {
-        set_display_col_row(0, row);
-        
-        for (byte col=0 ; col<SCREEN_COLUMNS ; col++)
+        for (byte col=0 ; col<SCREEN_WIDTH ; col++)
         {
-            shift_out_block(&BLANK[0], FALSE);
+            shift_out_byte(0x00);
         }
     }
 }
@@ -311,30 +385,33 @@ void display_image(const __memx byte *img, byte col, byte row, byte width, byte 
     }
 }
 
-void set_display_row(byte row)
-{
-    set_display_col_row(0, row);
-}
-
 void set_display_col_row(byte col, byte row)
 {
     PORTB &= ~(1 << DC);                    // COMMAND
     
     send_command(0xB0 + row);               // PAGEADDR
-    send_command((col*8) & 0x0F);           // Column start address (0 = reset)
-    send_command(0x10 | ((col*8) >> 4));    // LOW COL ADDR
+    send_command(col & 0x0F);               // Column start address (0 = reset)
+    send_command(0x10 | (col >> 4));        // LOW COL ADDR
     
     PORTB |= 1 << DC;                       // DATA
 }
 
-void display_block(const __memx byte *block, byte col, byte row)
+
+/* Sound Functions */
+
+void crap_beep(word note, word dur)
 {
-    set_display_col_row(col, row);
-    shift_out_block(block, FALSE);
+    word ts = millis();
+    while (millis() < ts + dur)
+    {
+        PORTB |= 1 << SND;    // HIGH
+        delay_us(note);
+        PORTB &= ~(1 << SND); // LOW
+        delay_us(note);
+    }
 }
 
-void display_block_(const byte *block, byte col, byte row, byte inverted)
+void click( void )
 {
-    set_display_col_row(col, row);
-    shift_out_block(block, inverted);
+    crap_beep(_A9, 15);
 }
