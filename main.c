@@ -11,6 +11,9 @@ typedef struct sprite {
     byte y;
     byte row;
     byte y_offset;
+    
+    signed char xv;
+    signed char yv;
 } sprite;
 
 word delta_sum = 0;
@@ -38,24 +41,24 @@ int main (void)
     delay_ms(SPLASH_DELAY);
     
     sprite sprites[MAX_SPRITES] = {
-        {.glyph=0, .x=0, .y=0},
-        {.glyph=0, .x=0, .y=0},
-        {.glyph=0, .x=0, .y=0},
-        {.glyph=0, .x=0, .y=0},
-        {.glyph=0, .x=0, .y=0},
-        {.glyph=0, .x=0, .y=0},
-        {.glyph=0, .x=0, .y=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
             
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=0*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=1*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=2*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=3*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=4*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=5*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=6*8},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=7*8},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=0*8, .xv=-2, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=1*8, .xv=-2, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=2*8, .xv=-2, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=3*8, .xv=-2, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=4*8, .xv=-2, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=5*8, .xv=-2, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=6*8, .xv=-2, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=7*8, .xv=-2, .yv=0},
         
-        {.glyph=PLAYER_SHIP, .x=2, .y=2*8},
+        {.glyph=PLAYER_SHIP, .x=2, .y=2*8, .xv=0, .yv=0},
     };
     
     sprite *player = &sprites[MAX_SPRITES-1];
@@ -185,6 +188,8 @@ int main (void)
         /* Update Sprites */
         for(byte s=0 ; s<MAX_SPRITES ; s++)
         {
+            sprites[s].x += sprites[s].xv;
+            sprites[s].y += sprites[s].yv;
             // Collision detection
             for(byte _s=0 ; _s<MAX_SPRITES ; _s++)
             {
@@ -207,7 +212,7 @@ int main (void)
             
             if (sprites[s].glyph == PLASMA_BOLT)
             {
-                sprites[s].x += 6;
+                
                 if (sprites[s].x >= 120)
                 {
                     sprites[s].glyph = 0;
@@ -217,13 +222,20 @@ int main (void)
             }
             else if (sprites[s].glyph == ENEMY_SHIP)
             {
-                sprites[s].x -= 2;
-                if (sprites[s].x <= 0)
+                if (sprites[s].x <= 0 || sprites[s].x >= SCREEN_WIDTH-8)
+                {
+                    sprites[s].xv *= -1;
+                    sprites[s].x += sprites[s].xv;
+                    if (sprites[s].y > 32)
+                        sprites[s].vy = 1;
+                    else
+                        sprites[s].vy = -1;
+                }
+                if (sprites[s].y <= 0 || sprites[s].y >= SCREEN_HEIGHT-8)
                 {
                     //TODO: Do something cleverer here!
-                    sprites[s].glyph=0;
-                    sprites[s].x = 0;
-                    sprites[s].y = 0;
+                    sprites[s].yv *= -1;
+                    sprites[s].y += sprites[s].yv;
                 }
             }
         }
