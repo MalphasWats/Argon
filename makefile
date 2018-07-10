@@ -7,7 +7,7 @@ DEVICE     = attiny85
 DEVDUDE    = t85
 CLOCK      = 8000000
 PROGRAMMER = -c linuxspi -P /dev/spidev0.0
-OBJECTS    = platform.o beep.o oled.o main.o     # Add more objects for each .c file here
+OBJECTS    = MAGE.o main.o     # Add more objects for each .c file here
 C_FLAGS    = -Wl,--gc-sections -Wl,--relax -ffunction-sections -fdata-sections -fno-inline-small-functions -fpack-struct -fshort-enums -mshort-calls
 # fuse settings:
 # use http://www.engbedded.com/fusecalc
