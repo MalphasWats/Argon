@@ -63,6 +63,16 @@ int main (void)
     
     sprite *player = &sprites[MAX_SPRITES-1];
     
+    byte wave = 1;
+    
+    set_display_col_row(3*8, 3);
+    shift_out_block(&GLYPHS[WA], FALSE);
+    shift_out_block(&GLYPHS[VE], FALSE);
+    shift_out_block(&GLYPHS[0], FALSE);
+    shift_out_block(&GLYPHS[(wave+1)*8], FALSE);
+    
+    delay_ms(1500);
+    
     for(ever)
     {
         t = millis();
@@ -129,6 +139,7 @@ int main (void)
             btn_timer = 0;
         
         /* Update Sprites */
+        byte active_enemies = 0;
         for(byte s=0 ; s<MAX_SPRITES ; s++)
         {
             sprites[s].x += sprites[s].xv;
@@ -180,6 +191,7 @@ int main (void)
             }
             else if (sprites[s].glyph == ENEMY_SHIP)
             {
+                active_enemies += 1;
                 if (sprites[s].x >= SCREEN_WIDTH-8)
                 {
                     sprites[s].xv *= -1;
@@ -196,6 +208,21 @@ int main (void)
                     sprites[s].y += sprites[s].yv;
                 }
             }
+        }
+        
+        if (active_enemies == 0)
+        {
+            wave += 1;
+            
+            set_display_col_row(3*8, 3);
+            shift_out_block(&GLYPHS[WA], FALSE);
+            shift_out_block(&GLYPHS[VE], FALSE);
+            shift_out_block(&GLYPHS[0], FALSE);
+            shift_out_block(&GLYPHS[(wave+1)*8], FALSE);
+            
+            delay_ms(1500); //TODO: Don't delay - use a timer.
+            
+            //TODO: Set up params for next wave.
         }
         
         /* DRAW LOOP */
