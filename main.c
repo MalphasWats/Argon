@@ -261,7 +261,7 @@ int main (void)
             {
                 digit = ((fps % 10)+1)*8;
                 for(byte i=0 ; i<8 ; i++)
-                    HUD[(d*8)+i] = GLYPHS[digit+i];
+                    HUD[((3-d)*8)+i] = GLYPHS[digit+i];
                 fps = fps / 10;
             }
         }
