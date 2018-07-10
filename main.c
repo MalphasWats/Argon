@@ -151,13 +151,19 @@ int main (void)
                     if (sprites[s].x >= sprites[_s].x && sprites[s].x < sprites[_s].x+8 &&
                         sprites[s].y >= sprites[_s].y && sprites[s].y < sprites[_s].y+8)
                     {
-                        sprites[s].glyph=0;
+                        /*sprites[s].glyph=0;
                         sprites[s].x = 0;
                         sprites[s].y = 0;
                         
                         sprites[_s].glyph=0;
                         sprites[_s].x = 0;
-                        sprites[_s].y = 0;
+                        sprites[_s].y = 0;*/
+                        
+                        sprites[s].xv = 0;
+                        sprites[s].yv = 0;
+                        
+                        sprites[_s].xv = 0;
+                        sprites[_s].yv = 0;
                     }
                 }
             }
