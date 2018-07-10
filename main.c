@@ -49,14 +49,14 @@ int main (void)
         {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
         {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
             
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=0*8, .xv=-2, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=1*8, .xv=-2, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=2*8, .xv=-2, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=3*8, .xv=-2, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=4*8, .xv=-2, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=5*8, .xv=-2, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=6*8, .xv=-2, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=7*8, .xv=-2, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=0*8, .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=1*8, .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=2*8, .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=3*8, .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=4*8, .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=5*8, .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=6*8, .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=7*8, .xv=-1, .yv=0},
         
         {.glyph=PLAYER_SHIP, .x=2, .y=2*8, .xv=0, .yv=0},
     };
@@ -98,7 +98,7 @@ int main (void)
         {
             if(btn_val >= _A-BTN_THRESHOLD && btn_val <= _A+BTN_THRESHOLD)
             {
-                click();
+                // click(); synchronous click causes frames to drop!
                 for (byte s=0 ; s < 4 ; s++)
                 {
                     if (sprites[s].glyph == 0 && player->x < 120)
@@ -115,18 +115,82 @@ int main (void)
             }
             else if(btn_val >= _B-BTN_THRESHOLD && btn_val <= _B+BTN_THRESHOLD)
             {
-                click();
+                //click();
                 btn_timer = t+BTN_DELAY;
             }
             else if(btn_val >= _C-BTN_THRESHOLD && btn_val <= _C+BTN_THRESHOLD)
             {
-                click();
+                //click();
                 btn_timer = t+BTN_DELAY;
             }
         }
         
         if (t > btn_timer)
             btn_timer = 0;
+        
+        /* Update Sprites */
+        for(byte s=0 ; s<MAX_SPRITES ; s++)
+        {
+            sprites[s].x += sprites[s].xv;
+            sprites[s].y += sprites[s].yv;
+            
+            sprites[s].row = sprites[s].y/8;
+            sprites[s].y_offset = sprites[s].y%8;
+            
+            // Collision detection
+            for(byte _s=0 ; _s<MAX_SPRITES ; _s++)
+            {
+                // Don't check self! Also, sprites can't collide with other sprites of same type
+                if (s != _s && 
+                    sprites[s].glyph != sprites[_s].glyph && 
+                    sprites[s].glyph != PLAYER_SHIP && 
+                    sprites[_s].glyph != PLAYER_SHIP && 
+                    sprites[s].glyph != 0 &&
+                    sprites[_s].glyph != 0)
+                {
+                    if (sprites[s].x >= sprites[_s].x && sprites[s].x < sprites[_s].x+8 &&
+                        sprites[s].y >= sprites[_s].y && sprites[s].y < sprites[_s].y+8)
+                    {
+                        sprites[s].glyph=0;
+                        sprites[s].x = 0;
+                        sprites[s].y = 0;
+                        
+                        sprites[_s].glyph=0;
+                        sprites[_s].x = 0;
+                        sprites[_s].y = 0;
+                    }
+                }
+            }
+            
+            if (sprites[s].glyph == PLASMA_BOLT)
+            {
+                
+                if (sprites[s].x >= 120)
+                {
+                    sprites[s].glyph = 0;
+                    sprites[s].x = 0;
+                    sprites[s].y = 0;
+                }
+            }
+            else if (sprites[s].glyph == ENEMY_SHIP)
+            {
+                if (sprites[s].x >= SCREEN_WIDTH-8)
+                {
+                    sprites[s].xv *= -1;
+                    sprites[s].x += sprites[s].xv;
+                    if (sprites[s].y > 32)
+                        sprites[s].yv = 1;
+                    else
+                        sprites[s].yv = -1;
+                }
+                if (sprites[s].y >= SCREEN_HEIGHT-8)
+                {
+                    //TODO: Do something cleverer here!
+                    sprites[s].yv *= -1;
+                    sprites[s].y += sprites[s].yv;
+                }
+            }
+        }
         
         /* DRAW LOOP */
         set_display_col_row(0, 0);
@@ -179,65 +243,6 @@ int main (void)
             
             for (byte x=0 ; x<SCREEN_WIDTH ; x++)
                 shift_out_byte(buffer[x]);
-        }
-        
-        /* Update Sprites */
-        for(byte s=0 ; s<MAX_SPRITES ; s++)
-        {
-            sprites[s].x += sprites[s].xv;
-            sprites[s].y += sprites[s].yv;
-            
-            sprites[s].row = sprites[s].y/8;
-            sprites[s].y_offset = sprites[s].y%8;
-            
-            // Collision detection
-            for(byte _s=0 ; _s<MAX_SPRITES ; _s++)
-            {
-                // Don't check self! Also, sprites can't collide with other sprites of same type
-                if (s != _s && sprites[s].glyph != sprites[_s].glyph && sprites[s].glyph != PLAYER_SHIP && sprites[_s].glyph != PLAYER_SHIP)
-                {
-                    if (sprites[s].x >= sprites[_s].x && sprites[s].x < sprites[_s].x+8 &&
-                        sprites[s].y >= sprites[_s].y && sprites[s].y < sprites[_s].y+8)
-                    {
-                        sprites[s].glyph=0;
-                        sprites[s].x = 0;
-                        sprites[s].y = 0;
-                        
-                        sprites[_s].glyph=0;
-                        sprites[_s].x = 0;
-                        sprites[_s].y = 0;
-                    }
-                }
-            }
-            
-            if (sprites[s].glyph == PLASMA_BOLT)
-            {
-                
-                if (sprites[s].x >= 120)
-                {
-                    sprites[s].glyph = 0;
-                    sprites[s].x = 0;
-                    sprites[s].y = 0;
-                }
-            }
-            else if (sprites[s].glyph == ENEMY_SHIP)
-            {
-                if (sprites[s].x <= 0 || sprites[s].x >= SCREEN_WIDTH-8)
-                {
-                    sprites[s].xv *= -1;
-                    sprites[s].x += sprites[s].xv;
-                    if (sprites[s].y > 32)
-                        sprites[s].yv = 1;
-                    else
-                        sprites[s].yv = -1;
-                }
-                if (sprites[s].y <= 0 || sprites[s].y >= SCREEN_HEIGHT-8)
-                {
-                    //TODO: Do something cleverer here!
-                    sprites[s].yv *= -1;
-                    sprites[s].y += sprites[s].yv;
-                }
-            }
         }
         
         /* Update Framerate (DEBUGGING) */
