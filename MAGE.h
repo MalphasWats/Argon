@@ -22,13 +22,13 @@
 #define BTN_THRESHOLD   2
 
 /* Button ADC Values */
-#define _UP     695
-#define _DOWN   852
-#define _LEFT   930
-#define _RIGHT  608
-#define _A      512
-#define _B      320
-#define _C      252
+#define _UP     698
+#define _DOWN   854
+#define _LEFT   932
+#define _RIGHT  613
+#define _A      516
+#define _B      325
+#define _C      262
 
 #define SPLASH_DELAY    1500
 

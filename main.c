@@ -75,16 +75,12 @@ int main (void)
             player->y -= SPEED;
             if (player->y > 255-SPEED-1)
                 player->y = 0;
-            player->row = player->y/8;
-            player->y_offset = player->y%8;
         }
         else if(btn_val >= _DOWN-BTN_THRESHOLD && btn_val <= _DOWN+BTN_THRESHOLD)
         {
             player->y += SPEED;
             if (player->y > SCREEN_HEIGHT-8)
                 player->y = SCREEN_HEIGHT-8;
-            player->row = player->y/8;
-            player->y_offset = player->y%8;
         }
         else if(btn_val >= _LEFT-BTN_THRESHOLD && btn_val <= _LEFT+BTN_THRESHOLD)
         {
@@ -190,11 +186,15 @@ int main (void)
         {
             sprites[s].x += sprites[s].xv;
             sprites[s].y += sprites[s].yv;
+            
+            sprites[s].row = sprites[s].y/8;
+            sprites[s].y_offset = sprites[s].y%8;
+            
             // Collision detection
-            /*for(byte _s=0 ; _s<MAX_SPRITES ; _s++)
+            for(byte _s=0 ; _s<MAX_SPRITES ; _s++)
             {
                 // Don't check self! Also, sprites can't collide with other sprites of same type
-                if (s != _s && sprites[s].glyph != sprites[_s].glyph)
+                if (s != _s && sprites[s].glyph != sprites[_s].glyph && sprites[s].glyph != PLAYER_SHIP && sprites[_s].glyph != PLAYER_SHIP)
                 {
                     if (sprites[s].x >= sprites[_s].x && sprites[s].x < sprites[_s].x+8 &&
                         sprites[s].y >= sprites[_s].y && sprites[s].y < sprites[_s].y+8)
@@ -208,7 +208,7 @@ int main (void)
                         sprites[_s].y = 0;
                     }
                 }
-            }*/
+            }
             
             if (sprites[s].glyph == PLASMA_BOLT)
             {
