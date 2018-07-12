@@ -52,7 +52,7 @@ int main (void)
         {.glyph=ENEMY_SHIP, .x=11*8, .y=4+(4*8), .xv=-1, .yv=0},
         {.glyph=ENEMY_SHIP, .x=12*8, .y=4+(5*8), .xv=-1, .yv=0},
         {.glyph=ENEMY_SHIP, .x=13*8, .y=4+(6*8), .xv=-1, .yv=0},
-        {.glyph=0, .x=0, .y=0, .xv=-1, .yv=0},
+        {.glyph=0, .x=0, .y=0, .xv=0, .yv=0},
         
         {.glyph=PLAYER_SHIP, .x=2, .y=2*8, .xv=0, .yv=0},
     };
@@ -63,7 +63,7 @@ int main (void)
     
     clear_display();
     
-    set_display_col_row(7*8, 3);
+    set_display_col_row(6*8, 4);
     shift_out_block(&GLYPHS[WA], FALSE);
     shift_out_block(&GLYPHS[VE], FALSE);
     shift_out_block(&GLYPHS[0], FALSE);
@@ -143,6 +143,16 @@ int main (void)
             sprites[s].x += sprites[s].xv;
             sprites[s].y += sprites[s].yv;
             
+            if (sprites[s].x < 0)
+                sprites[s].x = 0;
+            else if (sprites[s].x > SCREEN_WIDTH-8)
+                sprites[s].x = SCREEN_WIDTH-8;
+            
+            if (sprites[s].y < 0)
+                sprites[s].y = 0;
+            else if (sprites[s].y > SCREEN_HEIGHT-8)
+                sprites[s].y = SCREEN_HEIGHT-8;
+            
             sprites[s].row = sprites[s].y/8;
             sprites[s].y_offset = sprites[s].y%8;
             
@@ -174,7 +184,7 @@ int main (void)
             if (sprites[s].glyph == PLASMA_BOLT)
             {
                 
-                if (sprites[s].x >= 120)
+                if (sprites[s].x >= SCREEN_WIDTH-8)
                 {
                     sprites[s].glyph = 0;
                     sprites[s].x = 0;
@@ -184,10 +194,6 @@ int main (void)
             else if (sprites[s].glyph == ENEMY_SHIP)
             {
                 active_enemies += 1;
-                if (sprites[s].x < 0)
-                    sprites[s].x = 0;
-                else if (sprites[s].x > SCREEN_WIDTH-8)
-                    sprites[s].x = SCREEN_WIDTH-8;
                 
                 if (sprites[s].x == 0 || sprites[s].x == SCREEN_WIDTH-8)
                 {
@@ -198,11 +204,6 @@ int main (void)
                         sprites[s].yv = -1;
                 }
                 
-                if (sprites[s].y < 0)
-                    sprites[s].y = 0;
-                else if (sprites[s].y > SCREEN_HEIGHT-8)
-                    sprites[s].y = SCREEN_HEIGHT-8;
-
                 if (sprites[s].y == 0 || sprites[s].y == SCREEN_HEIGHT-8)
                 {
                     //TODO: Do something cleverer here!
