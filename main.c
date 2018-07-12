@@ -45,14 +45,14 @@ int main (void)
         {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
         {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
             
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=0*8, .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=1*8, .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=2*8, .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=3*8, .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=4*8, .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=5*8, .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=6*8, .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=7*8, .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=13*8, .y=4+(0*8), .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=4+(1*8), .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=4+(2*8), .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=10*8, .y=4+(3*8), .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=4+(4*8), .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=4+(5*8), .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=13*8, .y=4+(6*8), .xv=-1, .yv=0},
+        {.glyph=0, .x=0, .y=0, .xv=-1, .yv=0},
         
         {.glyph=PLAYER_SHIP, .x=2, .y=2*8, .xv=0, .yv=0},
     };
