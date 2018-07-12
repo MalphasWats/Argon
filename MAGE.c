@@ -49,13 +49,13 @@ void initialise( void )
     ADMUX = 0x00 | BTNS;    // Configure analog input
     
     /* Initialise Timer */
-    TCCR1 = 0x86;           // CTC Mode, CK/32 prescale (250)
+    TCCR1 = 0x87;           // CTC Mode, CK/64 prescale (250)
     TIMSK |= 0x40;          // Enable OCIE1A Compare Interrupt
     
     sei();                  // Enable interrupts
     
                  //                     F_CPU   Prescale  Timer frequency (1 ms)
-    OCR1A = 250; // Set compare value (8000000Hz / 32) / 1000Hz
+    OCR1A = 250; // Set compare value (16000000Hz / 64) / 1000Hz
     
     initialise_oled();
     clear_display();

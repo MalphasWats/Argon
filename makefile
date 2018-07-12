@@ -5,14 +5,15 @@
 
 DEVICE     = attiny85
 DEVDUDE    = t85
-CLOCK      = 8000000
+CLOCK      = 16000000
 PROGRAMMER = -c linuxspi -P /dev/spidev0.0
 OBJECTS    = MAGE.o main.o     # Add more objects for each .c file here
 C_FLAGS    = -Wl,--gc-sections -Wl,--relax -ffunction-sections -fdata-sections -fno-inline-small-functions -fpack-struct -fshort-enums -mshort-calls
 # fuse settings:
 # use http://www.engbedded.com/fusecalc
 #FUSES      = -U lfuse:w:0x62:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m  # 1mhz
-FUSES      = -U lfuse:w:0xe2:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
+#FUSES      = -U lfuse:w:0xe2:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m  # 8mhz
+FUSES      = -U lfuse:w:0xf1:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
 
 AVRDUDE = sudo avrdude -b 14400 $(PROGRAMMER) -p $(DEVDUDE)
 AVRDUDE_FAST = sudo avrdude -b 200000 $(PROGRAMMER) -p $(DEVDUDE)
