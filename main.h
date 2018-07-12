@@ -51,8 +51,8 @@ static const __flash byte GLYPHS[] = {
 #define PLAYER_SHIP 11
 #define ENEMY_SHIP  14
 #define PLASMA_BOLT 12
-#define WA          34
-#define VE          35
+#define WA          34*8
+#define VE          35*8
 
 #define MAX_SPRITES 16
 

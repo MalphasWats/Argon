@@ -7,13 +7,13 @@ word btn_timer = 0;
 
 typedef struct sprite {
     byte glyph;
-    byte x;
-    byte y;
+    int x;
+    int y;
     byte row;
     byte y_offset;
     
-    signed char xv;
-    signed char yv;
+    int xv;
+    int yv;
 } sprite;
 
 word delta_sum = 0;
@@ -28,10 +28,6 @@ byte buffer[128];
 int main (void) 
 {    
     initialise();
-    initialise_oled();
-    clear_display();
-    
-    PORTB |= 1 << DC;           // DATA
     
     display_image(&LOGO[0], 3*8, 3, 10, 2);
     crap_beep(_A5, 140);
@@ -65,7 +61,9 @@ int main (void)
     
     byte wave = 1;
     
-    set_display_col_row(3*8, 3);
+    clear_display();
+    
+    set_display_col_row(7*8, 3);
     shift_out_block(&GLYPHS[WA], FALSE);
     shift_out_block(&GLYPHS[VE], FALSE);
     shift_out_block(&GLYPHS[0], FALSE);
@@ -83,7 +81,7 @@ int main (void)
         if (btn_val >= _UP-BTN_THRESHOLD && btn_val <= _UP+BTN_THRESHOLD)
         {
             player->y -= SPEED;
-            if (player->y > 255-SPEED-1)
+            if (player->y < 0)
                 player->y = 0;
         }
         else if(btn_val >= _DOWN-BTN_THRESHOLD && btn_val <= _DOWN+BTN_THRESHOLD)
@@ -95,7 +93,7 @@ int main (void)
         else if(btn_val >= _LEFT-BTN_THRESHOLD && btn_val <= _LEFT+BTN_THRESHOLD)
         {
             player->x -= SPEED;
-            if (player->x > 255-SPEED-1)
+            if (player->x < 0)
                 player->x = 0;
         }
         else if(btn_val >= _RIGHT-BTN_THRESHOLD && btn_val <= _RIGHT+BTN_THRESHOLD)
@@ -154,7 +152,7 @@ int main (void)
                 // Don't check self! Also, sprites can't collide with other sprites of same type
                 if (s != _s && 
                     sprites[s].glyph != sprites[_s].glyph && 
-                    sprites[s].glyph != PLAYER_SHIP && 
+                    sprites[s].glyph != PLAYER_SHIP &&          // TODO: 
                     sprites[_s].glyph != PLAYER_SHIP && 
                     sprites[s].glyph != 0 &&
                     sprites[_s].glyph != 0)
@@ -162,19 +160,13 @@ int main (void)
                     if (sprites[s].x >= sprites[_s].x && sprites[s].x < sprites[_s].x+8 &&
                         sprites[s].y >= sprites[_s].y && sprites[s].y < sprites[_s].y+8)
                     {
-                        /*sprites[s].glyph=0;
+                        sprites[s].glyph=0;
                         sprites[s].x = 0;
                         sprites[s].y = 0;
                         
                         sprites[_s].glyph=0;
                         sprites[_s].x = 0;
-                        sprites[_s].y = 0;*/
-                        
-                        sprites[s].xv = 0;
-                        sprites[s].yv = 0;
-                        
-                        sprites[_s].xv = 0;
-                        sprites[_s].yv = 0;
+                        sprites[_s].y = 0;
                     }
                 }
             }
@@ -192,29 +184,38 @@ int main (void)
             else if (sprites[s].glyph == ENEMY_SHIP)
             {
                 active_enemies += 1;
-                if (sprites[s].x >= SCREEN_WIDTH-8)
+                if (sprites[s].x < 0)
+                    sprites[s].x = 0;
+                else if (sprites[s].x > SCREEN_WIDTH-8)
+                    sprites[s].x = SCREEN_WIDTH-8;
+                
+                if (sprites[s].x == 0 || sprites[s].x == SCREEN_WIDTH-8)
                 {
                     sprites[s].xv *= -1;
-                    sprites[s].x += sprites[s].xv;
                     if (sprites[s].y > 32)
                         sprites[s].yv = 1;
                     else
                         sprites[s].yv = -1;
                 }
-                if (sprites[s].y >= SCREEN_HEIGHT-8)
+                
+                if (sprites[s].y < 0)
+                    sprites[s].y = 0;
+                else if (sprites[s].y > SCREEN_HEIGHT-8)
+                    sprites[s].y = SCREEN_HEIGHT-8;
+
+                if (sprites[s].y == 0 || sprites[s].y == SCREEN_HEIGHT-8)
                 {
                     //TODO: Do something cleverer here!
                     sprites[s].yv *= -1;
-                    sprites[s].y += sprites[s].yv;
                 }
             }
         }
         
-        if (active_enemies == 0)
+        /*if (active_enemies == 0)
         {
             wave += 1;
             
-            set_display_col_row(3*8, 3);
+            set_display_col_row(7*8, 3);
             shift_out_block(&GLYPHS[WA], FALSE);
             shift_out_block(&GLYPHS[VE], FALSE);
             shift_out_block(&GLYPHS[0], FALSE);
@@ -223,7 +224,7 @@ int main (void)
             delay_ms(1500); //TODO: Don't delay - use a timer.
             
             //TODO: Set up params for next wave.
-        }
+        }*/
         
         /* DRAW LOOP */
         set_display_col_row(0, 0);
