@@ -75,7 +75,7 @@ ISR(TIMER1_COMPA_vect)
     _millis += 1;
 }
 
-byte duration_timer = 0;
+word duration_timer = 0;
 byte period_timer = 0;
 byte period_value = 0;
 
@@ -98,7 +98,7 @@ ISR(TIMER0_COMPA_vect)
     }
 }
 
-void beep(byte note, byte duration)
+void beep(byte note, word duration)
 {
     // set duration timer
     duration_timer = duration;
