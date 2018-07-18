@@ -48,14 +48,23 @@ void initialise( void )
     
     ADMUX = 0x00 | BTNS;    // Configure analog input
     
-    /* Initialise Timer */
+    /* Initialise Timers */
     TCCR1 = 0x87;           // CTC Mode, CK/64 prescale (250)
-    TIMSK |= 0x40;          // Enable OCIE1A Compare Interrupt
-    
-    sei();                  // Enable interrupts
-    
+    //TIMSK |= 0x40;          // Enable OCIE1A Compare Interrupt
                  //                     F_CPU   Prescale  Timer frequency (1 ms)
     OCR1A = 250; // Set compare value (16000000Hz / 64) / 1000Hz
+    
+    //Timer 0 - set to no prescaler
+    TCCR0A = 0x02; // normal counter, CTC Mode
+    TCCR0B = 0x01; // No prescale
+    //Enable compare interrupt
+    
+    //compare value = 16000000 / 1000000 = 16
+    // 16 = 1us, notes can update every 10 (not perfect but ok), compare value can be 160
+    OCR0A = 160;
+    
+    TIMSK = 0x50;           // Enable OCIE1A and OCIE0A
+    sei();                  // Enable interrupts
     
     initialise_oled();
     clear_display();
@@ -64,6 +73,41 @@ void initialise( void )
 ISR(TIMER1_COMPA_vect)
 {
     _millis += 1;
+}
+
+byte duration_timer = 0;
+byte period_timer = 0;
+byte period_value = 0;
+
+ISR(TIMER0_COMPA_vect)
+{
+    // if duration timer complete, disable timer, set pin 0 low (or high, what's best?)
+    if (_millis >= duration_timer)
+    {
+        TIMSK = 0x40;  // Disable interrupt
+        PORTB &= ~(1 << SND); // LOW
+    }
+    else
+    {
+        if (period_timer == 0)
+        {
+            PORTB ^= 1 << SND;    // Toggle
+            period_timer = period_value;
+        }
+        period_timer -= 1;
+    }
+}
+
+void beep(byte note, byte duration)
+{
+    // set duration timer
+    duration_timer = duration;
+    
+    // set period value
+    period_value = note;
+    
+    // enable timer
+    TIMSK = 0x50;  // Enable interrupt
 }
 
 word millis( void )
