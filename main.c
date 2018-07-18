@@ -71,6 +71,9 @@ int main (void)
     
     delay_ms(1500);
     
+    //test async beep
+    beep(135, 2500); // 2.5 second beep shouldn't stop program continuing
+    
     for(ever)
     {
         t = millis();
