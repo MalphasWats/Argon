@@ -69,10 +69,10 @@ int main (void)
     shift_out_block(&GLYPHS[0], FALSE);
     shift_out_block(&GLYPHS[(wave+1)*8], FALSE);
     
-    delay_ms(1500);
-    
+    //delay_ms(1500);
+    crap_beep(_A4, 2000);
     //test async beep
-    beep(135, 2500); // 2.5 second beep shouldn't stop program continuing
+    beep(135, 2000); // 2 second beep shouldn't stop program continuing
     
     for(ever)
     {
@@ -101,7 +101,7 @@ int main (void)
         {
             if(btn_val >= _A-BTN_THRESHOLD && btn_val <= _A+BTN_THRESHOLD)
             {
-                // click(); synchronous click causes frames to drop!
+                click(); //synchronous click causes frames to drop!
                 for (byte s=0 ; s < 4 ; s++)
                 {
                     if (sprites[s].glyph == 0 && player->x < 120)

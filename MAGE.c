@@ -81,21 +81,19 @@ byte period_value = 0;
 
 ISR(TIMER0_COMPA_vect)
 {
-    // if duration timer complete, disable timer, set pin 0 low (or high, what's best?)
-    if (_millis >= duration_timer)
-    {
-        TIMSK = 0x40;  // Disable interrupt
-        PORTB &= ~(1 << SND); // LOW
-    }
-    else
+    if (_millis < duration_timer)
     {
         if (period_timer == 0)
         {
             PORTB ^= 1 << SND;    // Toggle
             period_timer = period_value;
         }
-        period_timer -= 1;
     }
+    else 
+    {
+        duration_timer = 0;
+    }
+    period_timer -= 1;
 }
 
 void beep(byte note, word duration)
@@ -457,5 +455,10 @@ void crap_beep(word note, word dur)
 
 void click( void )
 {
-    crap_beep(_A9, 15);
+    // set duration timer
+    duration_timer = _millis+15;
+    
+    // set period value
+    period_value = 20;
+    //crap_beep(_A9, 15);
 }
