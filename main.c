@@ -81,26 +81,18 @@ int main (void)
         if (btn_val >= _UP-BTN_THRESHOLD && btn_val <= _UP+BTN_THRESHOLD)
         {
             player->y -= SPEED;
-            if (player->y < 0)
-                player->y = 0;
         }
         else if(btn_val >= _DOWN-BTN_THRESHOLD && btn_val <= _DOWN+BTN_THRESHOLD)
         {
             player->y += SPEED;
-            if (player->y > SCREEN_HEIGHT-8)
-                player->y = SCREEN_HEIGHT-8;
         }
         else if(btn_val >= _LEFT-BTN_THRESHOLD && btn_val <= _LEFT+BTN_THRESHOLD)
         {
             player->x -= SPEED;
-            if (player->x < 0)
-                player->x = 0;
         }
         else if(btn_val >= _RIGHT-BTN_THRESHOLD && btn_val <= _RIGHT+BTN_THRESHOLD)
         {
             player->x += SPEED;
-            if (player->x > SCREEN_WIDTH-8)
-                player->x = SCREEN_WIDTH-8;
         }
         if (btn_timer == 0)
         {
