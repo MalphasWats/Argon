@@ -101,7 +101,7 @@ ISR(TIMER0_COMPA_vect)
 void beep(byte note, word duration)
 {
     // set duration timer
-    duration_timer = duration;
+    duration_timer = _millis+duration;
     
     // set period value
     period_value = note;

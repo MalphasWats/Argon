@@ -112,6 +112,7 @@ void display_image(const __memx byte *img, byte col, byte row, byte width, byte 
 
 void set_display_col_row(byte col, byte row);
 
+void beep(byte note, word duration);
 void crap_beep(word note, word dur);
 void click( void );
 
