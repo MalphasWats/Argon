@@ -3,7 +3,7 @@
 #include "main.h"
 
 word t = 0;
-word btn_timer = 0;
+//word btn_timer = 0;
 
 typedef struct sprite {
     byte glyph;
@@ -14,6 +14,8 @@ typedef struct sprite {
     
     int xv;
     int yv;
+    
+    word timer;
 } sprite;
 
 word delta_sum = 0;
@@ -38,29 +40,29 @@ int main (void)
     delay_ms(SPLASH_DELAY);
     
     sprite sprites[MAX_SPRITES] = {
-        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
-        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
-        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
-        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
-        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
-        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
-        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0, .timer=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0, .timer=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0, .timer=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0, .timer=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0, .timer=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0, .timer=0},
+        {.glyph=0, .x=0, .y=0, .xv=3, .yv=0, .timer=0},
             
-        {.glyph=ENEMY_SHIP, .x=13*8, .y=4+(0*8), .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=4+(1*8), .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=11*8, .y=4+(2*8), .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=10*8, .y=4+(3*8), .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=11*8, .y=4+(4*8), .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=12*8, .y=4+(5*8), .xv=-1, .yv=0},
-        {.glyph=ENEMY_SHIP, .x=13*8, .y=4+(6*8), .xv=-1, .yv=0},
+        {.glyph=ENEMY_SHIP, .x=13*8, .y=4+(0*8), .xv=-1, .yv=0, .timer=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=4+(1*8), .xv=-1, .yv=0, .timer=0},
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=4+(2*8), .xv=-1, .yv=0, .timer=0},
+        {.glyph=ENEMY_SHIP, .x=10*8, .y=4+(3*8), .xv=-1, .yv=0, .timer=0},
+        {.glyph=ENEMY_SHIP, .x=11*8, .y=4+(4*8), .xv=-1, .yv=0, .timer=0},
+        {.glyph=ENEMY_SHIP, .x=12*8, .y=4+(5*8), .xv=-1, .yv=0, .timer=0},
+        {.glyph=ENEMY_SHIP, .x=13*8, .y=4+(6*8), .xv=-1, .yv=0, .timer=0},
         {.glyph=0, .x=0, .y=0, .xv=0, .yv=0},
         
-        {.glyph=PLAYER_SHIP, .x=2, .y=2*8, .xv=0, .yv=0},
+        {.glyph=PLAYER_SHIP, .x=2, .y=2*8, .xv=0, .yv=0, .timer=0},
     };
     
     sprite *player = &sprites[MAX_SPRITES-1];
     
-    byte wave = 1;
+    /*byte wave = 1;
     
     clear_display();
     
@@ -70,36 +72,40 @@ int main (void)
     shift_out_block(&GLYPHS[0], FALSE);
     shift_out_block(&GLYPHS[(wave+1)*8], FALSE);
     
-    delay_ms(1500);
+    delay_ms(1500);*/
     
     for(ever)
     {
         t = millis();
         
-        word btn_val = read_buttons();
-        
-        // TODO: Need to map values with A held down
-        if (btn_val >= _UP-BTN_THRESHOLD && btn_val <= _UP+BTN_THRESHOLD)
+        if (player->timer < t)
         {
-            player->y -= SPEED;
-        }
-        else if(btn_val >= _DOWN-BTN_THRESHOLD && btn_val <= _DOWN+BTN_THRESHOLD)
-        {
-            player->y += SPEED;
-        }
-        else if(btn_val >= _LEFT-BTN_THRESHOLD && btn_val <= _LEFT+BTN_THRESHOLD)
-        {
-            player->x -= SPEED;
-        }
-        else if(btn_val >= _RIGHT-BTN_THRESHOLD && btn_val <= _RIGHT+BTN_THRESHOLD)
-        {
-            player->x += SPEED;
-        }
-        if (btn_timer == 0)
-        {
-            if(btn_val >= _A-BTN_THRESHOLD && btn_val <= _A+BTN_THRESHOLD)
+            word btn_val = read_buttons();
+            
+            // TODO: Need to map values with A held down
+            if (btn_val >= _UP-BTN_THRESHOLD && btn_val <= _UP+BTN_THRESHOLD)
             {
-                click(); //synchronous click causes frames to drop!
+                player->y -= SPEED;
+                player->timer = t+FRAME_DELAY;
+            }
+            else if(btn_val >= _DOWN-BTN_THRESHOLD && btn_val <= _DOWN+BTN_THRESHOLD)
+            {
+                player->y += SPEED;
+                player->timer = t+FRAME_DELAY;
+            }
+            else if(btn_val >= _LEFT-BTN_THRESHOLD && btn_val <= _LEFT+BTN_THRESHOLD)
+            {
+                player->x -= SPEED;
+                player->timer = t+FRAME_DELAY;
+            }
+            else if(btn_val >= _RIGHT-BTN_THRESHOLD && btn_val <= _RIGHT+BTN_THRESHOLD)
+            {
+                player->x += SPEED;
+                player->timer = t+FRAME_DELAY;
+            }
+            else if(btn_val >= _A-BTN_THRESHOLD && btn_val <= _A+BTN_THRESHOLD)
+            {
+                click();
                 for (byte s=0 ; s < 4 ; s++)
                 {
                     if (sprites[s].glyph == 0 && player->x < 120)
@@ -112,9 +118,9 @@ int main (void)
                     }
                 }
                 
-                btn_timer = t+BTN_DELAY;
+                player->timer = t+FRAME_DELAY;
             }
-            else if(btn_val >= _B-BTN_THRESHOLD && btn_val <= _B+BTN_THRESHOLD)
+            /*else if(btn_val >= _B-BTN_THRESHOLD && btn_val <= _B+BTN_THRESHOLD)
             {
                 //click();
                 btn_timer = t+BTN_DELAY;
@@ -123,18 +129,22 @@ int main (void)
             {
                 //click();
                 btn_timer = t+BTN_DELAY;
-            }
+            }*/
         }
         
-        if (t > btn_timer)
-            btn_timer = 0;
+        //if (t > btn_timer)
+        //    btn_timer = 0;
         
         /* Update Sprites */
         byte active_enemies = 0;
         for(byte s=0 ; s<MAX_SPRITES ; s++)
         {
-            sprites[s].x += sprites[s].xv;
-            sprites[s].y += sprites[s].yv;
+            if (sprites[s].timer < t)
+            {
+                sprites[s].x += sprites[s].xv;
+                sprites[s].y += sprites[s].yv;
+                sprites[s].timer = t+FRAME_DELAY;
+            }
             
             if (sprites[s].x < 0)
                 sprites[s].x = 0;
