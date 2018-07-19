@@ -29,10 +29,11 @@ int main (void)
 {    
     initialise();
     
+    set_tune(&startup[0]);
     display_image(&LOGO[0], 3*8, 3, 10, 2);
-    crap_beep(_A5, 140);
-    delay_ms(5);
-    crap_beep(_A8, 60);
+    //crap_beep(_A5, 140);
+    //delay_ms(5);
+    //crap_beep(_A8, 60);
     
     delay_ms(SPLASH_DELAY);
     
@@ -69,10 +70,7 @@ int main (void)
     shift_out_block(&GLYPHS[0], FALSE);
     shift_out_block(&GLYPHS[(wave+1)*8], FALSE);
     
-    //delay_ms(1500);
-    crap_beep(_A4, 2000);
-    //test async beep
-    beep(135, 2000); // 2 second beep shouldn't stop program continuing
+    delay_ms(1500);
     
     for(ever)
     {

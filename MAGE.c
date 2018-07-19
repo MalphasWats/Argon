@@ -2,7 +2,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
+//#include <util/delay.h>
 
 word _millis = 0;
 
@@ -15,19 +15,17 @@ word rng( void )
 
 void delay_ms( word ms )
 {
-   for (word i=0; i < ms; i++)
-   {
-      _delay_ms(1);
-   }
+   word t = _millis+ms;
+   while (t>_millis) {}
 }
 
-void delay_us( word us )
+/*void delay_us( word us )
 {
    for (word i=0; i < us; i++)
    {
       _delay_us(1);
    }
-}
+}*/
 
 word read_buttons()
 {
@@ -77,7 +75,10 @@ ISR(TIMER1_COMPA_vect)
 
 word duration_timer = 0;
 byte period_timer = 0;
-byte period_value = 0;
+//byte period_value = 0;
+
+const note *tune;
+byte curr_note;
 
 ISR(TIMER0_COMPA_vect)
 {
@@ -86,26 +87,42 @@ ISR(TIMER0_COMPA_vect)
         if (period_timer == 0)
         {
             PORTB ^= 1 << SND;    // Toggle
-            period_timer = period_value;
+            period_timer = tune[curr_note].tone;
         }
     }
     else 
     {
-        duration_timer = 0;
+        curr_note += 1;
+        duration_timer = tune[curr_note].duration;
     }
     period_timer -= 1;
 }
 
-void beep(byte note, word duration)
+note _note[] = { {.tone=0, .duration=0},
+                {.tone=0, .duration=0}
+              };
+
+void beep(byte tone, word duration)
 {
-    // set duration timer
-    duration_timer = _millis+duration;
+    _note[0].tone = tone;
+    _note[0].duration = duration;
     
-    // set period value
-    period_value = note;
+    set_tune(&_note[0]);
+}
+
+void set_tune(const __memx note *tne)
+{
+    curr_note = 0;
+    tune = tne;
     
-    // enable timer
-    TIMSK = 0x50;  // Enable interrupt
+    period_timer = 0;
+    duration_timer = _millis + tune[curr_note].duration; // This starts the tune
+}
+
+void click( void )
+{
+    beep(20, 15);
+    //crap_beep(_A9, 15);
 }
 
 word millis( void )
@@ -441,7 +458,7 @@ void set_display_col_row(byte col, byte row)
 
 /* Sound Functions */
 
-void crap_beep(word note, word dur)
+/*void crap_beep(word note, word dur)
 {
     word ts = millis();
     while (millis() < ts + dur)
@@ -451,14 +468,4 @@ void crap_beep(word note, word dur)
         PORTB &= ~(1 << SND); // LOW
         delay_us(note);
     }
-}
-
-void click( void )
-{
-    // set duration timer
-    duration_timer = _millis+15;
-    
-    // set period value
-    period_value = 20;
-    //crap_beep(_A9, 15);
-}
+}*/

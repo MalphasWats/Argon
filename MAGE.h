@@ -43,26 +43,38 @@
 
 // http://www.soundoctor.com/freq.htm
 //      NOTE    PERIOD   FREQ.  Note        
-#define _A4    2270/2 // 440hz, Concert A(4)  0
-#define _Bb4   2100/2 // 466hz, Bb(4)         1
-#define _B4    2000/2 // 494hz, B(4)          2
-#define _C5    1900/2 // 523hz, C(5)          3
-#define _Cs5   1800/2 // 554hz, C#(5)         4
-#define _D5    1700/2 // 587hz, D(5)          5
-#define _Ds5   1600/2 // 622hz, D#(5)         6
-#define _E5    1500/2 // 659hz, E(5)          7
-#define _F5    1400/2 // 698hz, F(5)          8
-#define _Fs5   1350/2 // 740hz, F#(5)         9
-#define _G5    1280/2 // 748hz, G(5)          A
-#define _Gs5   1200/2 // 831hz, G#(5)         B
-#define _A5    1140/2 // 800 A(5)             C
-#define _Bb5   1070/2 // 932, Bb(5)           D
-#define _B5    1010/2 // 988, B(5)            E
-#define _A8    142/2  // 7040                 F
-#define _A9    71/2   // 14080hz             X
+#define _A4    2270/20 // 440hz, Concert A(4)  0
+#define _Bb4   2100/20 // 466hz, Bb(4)         1
+#define _B4    2000/20 // 494hz, B(4)          2
+#define _C5    1900/20 // 523hz, C(5)          3
+#define _Cs5   1800/20 // 554hz, C#(5)         4
+#define _D5    1700/20 // 587hz, D(5)          5
+#define _Ds5   1600/20 // 622hz, D#(5)         6
+#define _E5    1500/20 // 659hz, E(5)          7
+#define _F5    1400/20 // 698hz, F(5)          8
+#define _Fs5   1350/20 // 740hz, F#(5)         9
+#define _G5    1280/20 // 748hz, G(5)          A
+#define _Gs5   1200/20 // 831hz, G#(5)         B
+#define _A5    1140/20 // 800 A(5)             C
+#define _Bb5   1070/20 // 932, Bb(5)           D
+#define _B5    1010/20 // 988, B(5)            E
+
+#define _A8    142/20  // 7040                 F
+#define _A9    71/20   // 14080hz             X
 
 typedef unsigned char byte;
 typedef unsigned int word;
+
+typedef struct note {
+    word tone;
+    word duration;
+} note;
+
+static const __flash note startup[] = { {.tone=_A4, .duration=120}, 
+                           {.tone=_C5, .duration=90}, 
+                           {.tone=_E5, .duration=60}, 
+                           {.tone=0, .duration=0}
+                         };
 
 static const __flash byte LOGO[] = {
     0x00, 0x00, 0x04, 0x08, 0x18, 0x37, 0x3F, 0x0F,     0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,     // HAT (Top) 
@@ -84,7 +96,7 @@ static const __flash byte LOGO[] = {
 word rng( void );
 
 void delay_ms( word ms );
-void delay_us( word us );
+//void delay_us( word us );
 
 
 // http://www.oz4.us/2015/12/recoding-bare-millis-clock-on-avr.html
@@ -112,8 +124,9 @@ void display_image(const __memx byte *img, byte col, byte row, byte width, byte 
 
 void set_display_col_row(byte col, byte row);
 
+void set_tune(const __memx note *tne);
 void beep(byte note, word duration);
-void crap_beep(word note, word dur);
+//void crap_beep(word note, word dur);
 void click( void );
 
 #endif
