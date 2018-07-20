@@ -4,7 +4,7 @@
 #include <avr/interrupt.h>
 //#include <util/delay.h>
 
-word _millis = 0;
+volatile word _millis = 0;
 
 word rngSEED = 5;
 word rng( void )
@@ -15,8 +15,9 @@ word rng( void )
 
 void delay_ms( word ms )
 {
-   word t = _millis+ms;
-   while (t>_millis) {}
+    word ts = millis()+ms;
+    
+    while(millis() < ts) { }
 }
 
 /*void delay_us( word us )
@@ -75,10 +76,7 @@ ISR(TIMER1_COMPA_vect)
 
 word duration_timer = 0;
 byte period_timer = 0;
-//byte period_value = 0;
-
-const note *tune;
-byte curr_note;
+byte period_value = 0;
 
 ISR(TIMER0_COMPA_vect)
 {
@@ -87,36 +85,16 @@ ISR(TIMER0_COMPA_vect)
         if (period_timer == 0)
         {
             PORTB ^= 1 << SND;    // Toggle
-            period_timer = tune[curr_note].tone;
+            period_timer = period_value;
         }
-    }
-    else 
-    {
-        curr_note += 1;
-        duration_timer = tune[curr_note].duration;
     }
     period_timer -= 1;
 }
 
-note _note[] = { {.tone=0, .duration=0},
-                {.tone=0, .duration=0}
-              };
-
 void beep(byte tone, word duration)
 {
-    _note[0].tone = tone;
-    _note[0].duration = duration;
-    
-    set_tune(&_note[0]);
-}
-
-void set_tune(const __memx note *tne)
-{
-    curr_note = 0;
-    tune = tne;
-    
-    period_timer = 0;
-    duration_timer = _millis + tune[curr_note].duration; // This starts the tune
+    period_value = tone;
+    duration_timer = _millis+duration;
 }
 
 void click( void )

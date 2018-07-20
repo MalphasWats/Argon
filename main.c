@@ -31,13 +31,14 @@ int main (void)
 {    
     initialise();
     
-    set_tune(&startup[0]);
     display_image(&LOGO[0], 3*8, 3, 10, 2);
-    //crap_beep(_A5, 140);
-    //delay_ms(5);
-    //crap_beep(_A8, 60);
+    beep(_A4, 120);
+    delay_ms(125);
+    beep(_C5, 90), 
+    delay_ms(95);
+    beep(_E5, 60);
     
-    delay_ms(SPLASH_DELAY);
+    delay_ms(SPLASH_DELAY-(125+95+60));
     
     sprite sprites[MAX_SPRITES] = {
         {.glyph=0, .x=0, .y=0, .xv=3, .yv=0, .timer=0},

@@ -85,17 +85,6 @@ _B5	    1010	505	    988	31	    976.5625	B(5)
 typedef unsigned char byte;
 typedef unsigned int word;
 
-typedef struct note {
-    word tone;
-    word duration;
-} note;
-
-static const __flash note startup[] = { {.tone=_A4, .duration=120}, 
-                           {.tone=_C5, .duration=90}, 
-                           {.tone=_E5, .duration=60}, 
-                           {.tone=0, .duration=0}
-                         };
-
 static const __flash byte LOGO[] = {
     0x00, 0x00, 0x04, 0x08, 0x18, 0x37, 0x3F, 0x0F,     0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,     // HAT (Top) 
     0x00, 0x00, 0x3F, 0x7E, 0x10, 0x38, 0x1C, 0x0E,     0x04, 0x02, 0x0E, 0x1C, 0x38, 0x10, 0x3F, 0x7E,     // M (Top)
@@ -144,7 +133,6 @@ void display_image(const __memx byte *img, byte col, byte row, byte width, byte 
 
 void set_display_col_row(byte col, byte row);
 
-void set_tune(const __memx note *tne);
 void beep(byte note, word duration);
 //void crap_beep(word note, word dur);
 void click( void );

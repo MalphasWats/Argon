@@ -58,7 +58,7 @@ static const __flash byte GLYPHS[] = {
 
 #define SPEED 3
 
-#define FRAME_DELAY 80
+#define FRAME_DELAY 8
 
 static const __flash byte MAP[] = {
      15,   0,   0,   0,   0,   0,   0,   0,  17,   0,   0,   0,   0,  18,   0,   0,
