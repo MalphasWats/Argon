@@ -47,7 +47,7 @@ void argon(void)
         .vx=0,
         .vy=0,
         .sprite = (Sprite){.tile=&TILES[PLAYER_SHIP], .mask=&MASKS[PLAYER_SHIP], .x=2, .y=32-4,},
-        .dead=FALSE,
+        .active=TRUE,
     };
     
     Mob *player = &mobs[0];
@@ -97,7 +97,7 @@ void argon(void)
         
         for (byte i=0 ; i<MAX_MOBS ; i++)
         {
-            if (!mobs[i].dead)
+            if (mobs[i].active)
                 draw_sprite(&mobs[i].sprite);
         }
             

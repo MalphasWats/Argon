@@ -10,7 +10,7 @@ typedef struct Mob {
     int vx;
     int vy;
     
-    bool dead;
+    bool active;
 } Mob;
 
 static const __flash byte TITLE[] = {
