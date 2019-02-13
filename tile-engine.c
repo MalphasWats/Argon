@@ -165,8 +165,3 @@ void center_on_sprite(Sprite *s, const Map __memx *map)
         viewport.y = map->rows*8 - SCREEN_HEIGHT;    
     
 }
-
-byte collide_with_world(Sprite *s, const Map __memx *map)
-{
-    return map->tiles[map->cols*((s->y+4)>>3) + ((s->x+4)>>3)] & 1;
-}

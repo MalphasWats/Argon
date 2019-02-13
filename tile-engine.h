@@ -30,6 +30,4 @@ void draw_sprite(Sprite *s);
 
 void center_on_sprite(Sprite *s, const Map __memx *map);
 
-byte collide_with_world(Sprite *s, const Map __memx *map);
-
 #endif

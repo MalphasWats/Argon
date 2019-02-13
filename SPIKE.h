@@ -1,6 +1,8 @@
 #ifndef SPIKE_H
 #define SPIKE_H
 
+#include <avr/io.h>
+
 #define F_CPU 16000000
 
 #define ever ;;
@@ -24,22 +26,24 @@
 #define MOSI    1
 
 /* Button Pins (PORTC) */
-#define UP          6
-#define DOWN        5
-#define LEFT        4
-#define RIGHT       3
-#define BTN_A       2
-#define BTN_B       1
-#define BTN_C       0
+#define UP_BTN_PIN      6
+#define DOWN_BTN_PIN    5
+#define LEFT_BTN_PIN    4
+#define RIGHT_BTN_PIN   3
+#define A_BTN_PIN       2
+#define B_BTN_PIN       1
+#define C_BTN_PIN       0
+
+#define read_buttons() ( ~PINC )
 
 /* Button Masks */
-#define _UP        0b01000000
-#define _DOWN      0b00100000
-#define _LEFT      0b00010000
-#define _RIGHT     0b00001000
-#define _A         0b00000100
-#define _B         0b00000010
-#define _C         0b00000001
+#define BTN_UP        1 << UP_BTN_PIN
+#define BTN_DOWN      1 << DOWN_BTN_PIN
+#define BTN_LEFT      1 << LEFT_BTN_PIN
+#define BTN_RIGHT     1 << RIGHT_BTN_PIN
+#define BTN_A         1 << A_BTN_PIN
+#define BTN_B         1 << B_BTN_PIN
+#define BTN_C         1 << C_BTN_PIN
 
 #define SPLASH_DELAY    1500
 
