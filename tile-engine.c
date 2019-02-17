@@ -139,7 +139,6 @@ void draw_map(const Map __memx *map, const __flash byte *tileset)
         for (byte col=0 ; col<NUM_COLS ; col++)
         {
             draw_tile(&tileset[map->tiles[map->cols * (row+y) + (col+x)]*8], col*8-x_offset, row*8-y_offset); 
-            //draw_tile(&tileset[6*8], col*8-x_offset, row*8-y_offset);
         }
     }
 }

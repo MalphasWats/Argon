@@ -10,7 +10,7 @@ int main (void)
     byte buttons;
     
     byte debounce = 0;
-    bool button_down = FALSE;
+    bool button_was_down = FALSE;
     
     for(ever)
     {
@@ -22,15 +22,15 @@ int main (void)
         draw();
         
         buttons = read_buttons();
-        if(buttons == BTN_A && !button_down)
+        if(buttons == BTN_A && !button_was_down)
         {
-            button_down = TRUE;
+            button_was_down = TRUE;
             debounce = t+10;
         }
         
-        if (buttons != BTN_A && button_down && debounce <= t)
+        if (buttons != BTN_A && button_was_down && debounce <= t)
         {
-            button_down = FALSE;
+            button_was_down = FALSE;
             argon();
         }
     }

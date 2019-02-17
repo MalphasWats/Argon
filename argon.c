@@ -2,10 +2,14 @@
 
 Mob mobs[MAX_MOBS];
 
+Mob stars[MAX_STARS];
+
 void argon(void)
 {
     dword t = 0;
     dword btn_timer = 0;
+    
+    dword star_timer = 0;
     
     byte buttons;
 
@@ -17,6 +21,24 @@ void argon(void)
     };
     
     Mob *player = &mobs[0];
+    
+    for(byte i=0 ; i<MAX_STARS ; i++)
+    {
+        byte star = rng() & 15;
+        int vx = -1;
+        if (star == 15)
+            vx = -2;
+            
+        byte c = rng() & (SCREEN_COLUMNS-1);
+        byte r = rng() & (SCREEN_ROWS-1);
+            
+        stars[i] = (Mob){
+            .vx=vx,
+            .vy=0,
+            .sprite = (Sprite){.tile=&TILES[ (star * 8)+STARS ], .mask=&MASKS[STAR_MASK], .x=c*8, .y=r*8,},
+            .active=TRUE,
+        };
+    }
     
     for(ever)
     {
@@ -61,11 +83,41 @@ void argon(void)
         
         clear_buffer();
         
+        for (byte i=0 ; i<MAX_STARS ; i++)
+        {
+            draw_sprite(&stars[i].sprite);
+        }
+        
+        if (star_timer <= t)
+        {
+            for (byte i=0 ; i<MAX_STARS ; i++)
+            {
+                stars[i].sprite.x += stars[i].vx;
+                if (stars[i].sprite.x < -8)
+                {
+                    byte star = rng() & 15;
+                    int vx = -1;
+                    if (star == 15)
+                        vx = -2;
+                    
+                    byte r = rng() & (SCREEN_ROWS-1);
+                        
+                    stars[i] = (Mob){
+                        .vx=vx,
+                        .vy=0,
+                        .sprite = (Sprite){.tile=&TILES[ (star * 8)+STARS ], .mask=&MASKS[STAR_MASK], .x=SCREEN_WIDTH+8, .y=r*8,},
+                        .active=TRUE,
+                    };
+                }
+            }
+            star_timer = t+25;
+        }
+        
         for (byte i=0 ; i<MAX_MOBS ; i++)
         {
             if (mobs[i].active)
                 draw_sprite(&mobs[i].sprite);
-        }
+            }
             
         draw();
     }
