@@ -28,6 +28,8 @@ void draw_tile_masked(const byte __flash *glyph, const byte __flash *mask, int x
 void draw_map(const Map __memx *map, const __flash byte *tileset);
 void draw_sprite(Sprite *s);
 
+void draw_pixel(int x, int y);
+
 void center_on_sprite(Sprite *s, const Map __memx *map);
 
 #endif

@@ -71,6 +71,9 @@ static const __flash byte MASKS[] = {
 
 #define PLAYER_SPEED 2
 
+#define WEAPON_HEAT_RATE 6
+#define WEAPON_COOL_RATE 4
+
 void argon(void);
 
 #endif

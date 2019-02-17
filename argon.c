@@ -7,11 +7,15 @@ Mob stars[MAX_STARS];
 void argon(void)
 {
     dword t = 0;
-    dword btn_timer = 0;
-    
+    dword move_timer = 0;
+    dword shoot_timer = 0;
     dword star_timer = 0;
     
     byte buttons;
+    
+    bool firing = FALSE;
+    int hit_x = 0;
+    int weapon_temp = 0;
 
     mobs[0] = (Mob){
         .vx=0,
@@ -45,13 +49,35 @@ void argon(void)
         t = millis();
         
         buttons = read_buttons();
-        if (btn_timer <= t)
+        if (shoot_timer <= t)
         {
             if ( buttons & BTN_A )
             {
-                click();
+                if (weapon_temp < (255-WEAPON_HEAT_RATE-1))
+                {
+                    click();
+                    // cast to collision
+                    hit_x = SCREEN_WIDTH;
+                    firing = TRUE;
+                    
+                    weapon_temp += WEAPON_HEAT_RATE;
+                }
+                else {
+                    firing = FALSE;
+                }
             }
+            else 
+            {
+                firing = FALSE;
+                weapon_temp -= WEAPON_COOL_RATE;
+                if (weapon_temp < 0)
+                    weapon_temp = 0;
+            }
+            shoot_timer = t+30;
+        }
             
+        if (move_timer <= t)
+        {   
             if ( buttons & BTN_UP )
             {
                 player->sprite.y -= PLAYER_SPEED;
@@ -77,8 +103,7 @@ void argon(void)
                     player->sprite.x -= PLAYER_SPEED;
             }
             
-            //TODO: lazy
-            btn_timer = t+20;
+            move_timer = t+20;
         }
         
         clear_buffer();
@@ -86,11 +111,8 @@ void argon(void)
         for (byte i=0 ; i<MAX_STARS ; i++)
         {
             draw_sprite(&stars[i].sprite);
-        }
-        
-        if (star_timer <= t)
-        {
-            for (byte i=0 ; i<MAX_STARS ; i++)
+            
+            if (star_timer <= t)
             {
                 stars[i].sprite.x += stars[i].vx;
                 if (stars[i].sprite.x < -8)
@@ -105,19 +127,36 @@ void argon(void)
                     stars[i] = (Mob){
                         .vx=vx,
                         .vy=0,
-                        .sprite = (Sprite){.tile=&TILES[ (star * 8)+STARS ], .mask=&MASKS[STAR_MASK], .x=SCREEN_WIDTH+8, .y=r*8,},
+                        .sprite = (Sprite){ .tile=&TILES[ (star * 8)+STARS ], 
+                                            .mask=&MASKS[STAR_MASK], 
+                                            .x=SCREEN_WIDTH+8, 
+                                            .y=r*8,
+                        },
                         .active=TRUE,
                     };
                 }
             }
-            star_timer = t+25;
         }
+        
+        if (star_timer <= t)
+            star_timer = t+25;
         
         for (byte i=0 ; i<MAX_MOBS ; i++)
         {
             if (mobs[i].active)
                 draw_sprite(&mobs[i].sprite);
-            }
+        }
+        
+        if (firing)
+        {
+            for (byte x=player->sprite.x+9 ; x<hit_x ; x++)
+                draw_pixel(x, player->sprite.y+4);
+        }
+        
+        for(byte i=0 ; i<(weapon_temp >> 2) ; i++)
+        {
+            buffer[ (7*SCREEN_WIDTH+(4*8)) + i ] |= 0xc0;
+        }
             
         draw();
     }

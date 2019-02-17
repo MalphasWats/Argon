@@ -148,6 +148,14 @@ void draw_sprite(Sprite *s)
     draw_tile_masked(s->tile, s->mask, s->x-viewport.x, s->y-viewport.y);
 }
 
+void draw_pixel(int x, int y)
+{
+    //TODO: Viewport
+    byte row = y>>3;
+    
+    buffer[ row * SCREEN_WIDTH + x ] |= 1 << (y&7);
+}
+
 void center_on_sprite(Sprite *s, const Map __memx *map)
 {
     viewport.x = s->x - (SCREEN_WIDTH>>1);
