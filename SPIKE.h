@@ -10,7 +10,7 @@
 #define LOW     0
 #define HIGH    1
 
-#define TRUE    0xFF
+#define TRUE    0x01
 #define FALSE   0x00
 
 #define SND   5  // PORTD
@@ -53,8 +53,8 @@
 #define SCREEN_WIDTH    128
 #define SCREEN_HEIGHT   64
 
-#define HALF_SCREEN_WIDTH   128/2
-#define HALF_SCREEN_HEIGHT  64/2
+#define HALF_SCREEN_WIDTH   SCREEN_WIDTH/2
+#define HALF_SCREEN_HEIGHT  SCREEN_HEIGHT/2
 
 #define SCREEN_COLUMNS  16
 #define SCREEN_ROWS     8
@@ -131,7 +131,7 @@ static const __flash byte BEATS[8] = {
 #define HDSQUAVER   7 << 4
 
 // Starting at 128 BPM
-#define BEAT_ATOM 8 * 4 * NOTE_DURATION_MULTIPLIER   // 8 Milliseconds
+#define BEAT_ATOM 8 * 4 * NOTE_DURATION_MULTIPLIER   // 32 Milliseconds
 
 typedef struct Tune {
     word length;
