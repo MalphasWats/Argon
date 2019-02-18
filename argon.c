@@ -10,6 +10,11 @@ void argon(void)
     dword move_timer = 0;
     dword shoot_timer = 0;
     dword star_timer = 0;
+    dword wave_timer = 0;
+    
+    byte wave_index = 0;
+    
+    word score = 0;
     
     byte buttons;
     
@@ -17,14 +22,16 @@ void argon(void)
     int hit_x = 0;
     int weapon_temp = 0;
 
-    mobs[0] = (Mob){
+    mobs[MAX_MOBS-1] = (Mob){
         .vx=0,
         .vy=0,
         .sprite = (Sprite){.tile=&TILES[PLAYER_SHIP], .mask=&MASKS[PLAYER_SHIP], .x=2, .y=32-4,},
         .active=TRUE,
+        
+        .type = PLAYER_SHIP,
     };
     
-    Mob *player = &mobs[0];
+    Mob *player = &mobs[MAX_MOBS-1];
     
     for(byte i=0 ; i<MAX_STARS ; i++)
     {
@@ -41,12 +48,41 @@ void argon(void)
             .vy=0,
             .sprite = (Sprite){.tile=&TILES[ (star * 8)+STARS ], .mask=&MASKS[STAR_MASK], .x=c*8, .y=r*8,},
             .active=TRUE,
+            
+            .type=STARS,
         };
     }
+    
+    wave_timer = millis() + 3800;
     
     for(ever)
     {
         t = millis();
+        
+        if (wave_timer <= t)
+        {
+            for(byte i=0 ; i<8 ; i++)
+            {
+                if (WAVES[wave_index][i] > 0)
+                {
+                    mobs[i] = (Mob){
+                        .vx=STATS[WAVES[wave_index][i]>>3].vx,
+                        .vy=STATS[WAVES[wave_index][i]>>3].vy,
+                        .sprite = (Sprite){
+                            .tile=&TILES[ WAVES[wave_index][i] ], 
+                            .mask=&MASKS[ WAVES[wave_index][i] ], 
+                            .x=SCREEN_WIDTH-8, 
+                            .y=i*8,
+                        },
+                        .active=TRUE,
+                        
+                        .type=WAVES[wave_index][i],
+                    };
+                }
+            }
+            
+            wave_timer = t+2400;
+        }
         
         buttons = read_buttons();
         if (shoot_timer <= t)
@@ -56,9 +92,28 @@ void argon(void)
                 if (weapon_temp < (255-WEAPON_HEAT_RATE-1))
                 {
                     click();
-                    // cast to collision
+                    
                     hit_x = SCREEN_WIDTH;
                     firing = TRUE;
+                    
+                    for (byte i=0 ; i<MAX_MOBS-1 ; i++)
+                    {
+                        if (mobs[i].active && 
+                            player->sprite.y+4 > mobs[i].sprite.y && 
+                            player->sprite.y < mobs[i].sprite.y+8)
+                        {
+                            hit_x = mobs[i].sprite.x;
+                            
+                            if ( (mobs[i].type>>3) < 9)
+                            {
+                                score += STATS[mobs[i].type>>3].score;
+                                
+                                mobs[i].type = WRECK;
+                                mobs[i].vx = 0;
+                                mobs[i].vy = 0;
+                            }
+                        }
+                    }
                     
                     weapon_temp += WEAPON_HEAT_RATE;
                 }
@@ -73,7 +128,7 @@ void argon(void)
                 if (weapon_temp < 0)
                     weapon_temp = 0;
             }
-            shoot_timer = t+30;
+            shoot_timer = t+120;
         }
             
         if (move_timer <= t)
@@ -101,6 +156,84 @@ void argon(void)
                 player->sprite.x += PLAYER_SPEED;
                 if (player->sprite.x > SCREEN_WIDTH-8)
                     player->sprite.x -= PLAYER_SPEED;
+            }
+            
+            for(byte i=0 ; i<MAX_MOBS-1 ; i++)
+            {
+                if (mobs[i].active)
+                {
+                    mobs[i].sprite.x += mobs[i].vx;
+                    mobs[i].sprite.y += mobs[i].vy;
+                    
+                    //TODO: State machine
+                    if (mobs[i].type == DART && mobs[i].sprite.x < -8)
+                        mobs[i].active = FALSE;
+                        
+                    if (mobs[i].type == WRECK)
+                    {
+                        mobs[i].type = EXPLOSION_1;
+                        mobs[i].sprite.tile = &TILES[ EXPLOSION_1 ];
+                        mobs[i].sprite.mask = &MASKS[ STAR_MASK ];
+                        mobs[i].animation_timer = t+EXPLOSION_FRAME_LENGTH;
+                    }
+                    else if (mobs[i].type == EXPLOSION_1 && mobs[i].animation_timer <= t)
+                    {
+                        mobs[i].type = EXPLOSION_2;
+                        mobs[i].sprite.tile = &TILES[ EXPLOSION_2 ];
+                        mobs[i].sprite.mask = &MASKS[ STAR_MASK ];
+                        mobs[i].animation_timer = t+EXPLOSION_FRAME_LENGTH;
+                    }
+                    else if (mobs[i].type == EXPLOSION_2 && mobs[i].animation_timer <= t)
+                    {
+                        mobs[i].type = EXPLOSION_3;
+                        mobs[i].sprite.tile = &TILES[ EXPLOSION_3 ];
+                        mobs[i].sprite.mask = &MASKS[ STAR_MASK ];
+                        mobs[i].animation_timer = t+EXPLOSION_FRAME_LENGTH;
+                    }
+                    else if (mobs[i].type == EXPLOSION_3 && mobs[i].animation_timer <= t)
+                    {
+                        mobs[i].type = EXPLOSION_4;
+                        mobs[i].sprite.tile = &TILES[ EXPLOSION_4 ];
+                        mobs[i].sprite.mask = &MASKS[ STAR_MASK ];
+                        mobs[i].animation_timer = t+EXPLOSION_FRAME_LENGTH;
+                    }
+                    else if (mobs[i].type == EXPLOSION_4 && mobs[i].animation_timer <= t)
+                    {
+                        mobs[i].active = FALSE;
+                    }
+                    
+                    //Collided with player?
+                    
+                    if (mobs[i].sprite.x+6 > player->sprite.x+2 &&
+                        mobs[i].sprite.x+2 < player->sprite.x+6 &&
+                        mobs[i].sprite.y+7 > player->sprite.y+1 &&
+                        mobs[i].sprite.y+1 < player->sprite.y+7)
+                    {    
+                        draw_string(&GAME_OVER[0], 32, 24);
+                        
+                        draw_tile_masked(&DIGITS[(score % 10)*8], &MASKS[0], 10*8, 40);
+                        score /= 10;
+                        draw_tile_masked(&DIGITS[(score % 10)*8], &MASKS[0], 9*8, 40);
+                        score /= 10;
+                        draw_tile_masked(&DIGITS[(score % 10)*8], &MASKS[0], 8*8, 40);
+                        score /= 10;
+                        draw_tile_masked(&DIGITS[(score % 10)*8], &MASKS[0], 7*8, 40);
+                        score /= 10;
+                        draw_tile_masked(&DIGITS[(score % 10)*8], &MASKS[0], 6*8, 40);
+                        //score /= 10;
+                        
+                        draw();
+                        
+                        for(byte j=0 ; j<MAX_MOBS-1 ; j++)
+                        {
+                            mobs[j].active = FALSE;
+                        }
+                        dword d = t+8000;
+                        while (d>t)
+                            t=millis();
+                        return;
+                    }
+                }
             }
             
             move_timer = t+20;
@@ -133,6 +266,7 @@ void argon(void)
                                             .y=r*8,
                         },
                         .active=TRUE,
+                        .type=STARS,
                     };
                 }
             }
@@ -159,5 +293,13 @@ void argon(void)
         }
             
         draw();
+    }
+}
+
+void draw_string(const __memx char *string, int x, int y)
+{
+    for(byte i=0 ; string[i] != '\0' ; i++)
+    {
+        draw_tile_masked(&ASCII[(string[i]-32)*8], &MASKS[0], x+(i*8), y);
     }
 }

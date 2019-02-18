@@ -3,6 +3,7 @@
 
 #include "SPIKE.h"
 #include "tile-engine.h"
+#include "ASCII.h"
 
 typedef struct Mob {
     Sprite sprite;
@@ -11,6 +12,9 @@ typedef struct Mob {
     int vy;
     
     bool active;
+    
+    word type;
+    dword animation_timer;
 } Mob;
 
 static const __flash byte TILES[] = {
@@ -41,6 +45,11 @@ static const __flash byte TILES[] = {
     0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 
     0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 
     0x00, 0x04, 0x0a, 0x04, 0x00, 0x00, 0x00, 0x00, 
+    
+    0x00, 0x00, 0x10, 0x38, 0x10, 0x00, 0x00, 0x00, // Explosions (25)
+    0x00, 0x10, 0x38, 0x7c, 0x38, 0x10, 0x00, 0x00, 
+    0x10, 0x38, 0x28, 0xc6, 0x28, 0x38, 0x10, 0x00, 
+    0x10, 0x00, 0x08, 0x81, 0x10, 0x04, 0x00, 0x10, 
 };
 
 static const __flash byte MASKS[] = {
@@ -65,15 +74,54 @@ static const __flash byte MASKS[] = {
 #define STARS       9*8
 #define STAR_MASK   9*8
 
+#define EXPLOSION_1 25*8
+#define EXPLOSION_2 26*8
+#define EXPLOSION_3 27*8
+#define EXPLOSION_4 28*8
+
+#define WRECK       255*8
+
 #define MAX_MOBS 24
 
 #define MAX_STARS 30
 
+#define EXPLOSION_FRAME_LENGTH 100
+
+
+static const __flash word WAVES[][8] = {
+    {0, DART, DART, DART, DART, DART, DART, 0},
+};
+
+typedef struct Statblock {
+    int vx;
+    int vy;
+    
+    word score;
+} Statblock;
+
+static const __flash Statblock STATS[] = {
+   // vx    yx   score
+    {0x00, 0x00, 0,},
+    {0x00, 0x00, 0,}, // PLAYER
+    {0x00, 0x00, 0,}, // PLASMA_BOLT
+    {0x00, 0x00, 0,}, // MISSILE
+    {0x00, 0x00, 0,}, // MINE
+    {0x00, 0x00, 0,}, // Frigate
+    {-2,    0,  5,}, // Dart
+    {0x00, 0x00, 0,}, // Saucer
+    {0x00, 0x00, 0,}, // Fighter
+};
+
+static const __flash char GAME_OVER[] = "GAME OVER";
+
+
 #define PLAYER_SPEED 2
 
-#define WEAPON_HEAT_RATE 6
+#define WEAPON_HEAT_RATE 8
 #define WEAPON_COOL_RATE 4
 
 void argon(void);
+
+void draw_string(const __memx char *string, int x, int y);
 
 #endif
