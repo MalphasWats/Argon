@@ -36,15 +36,12 @@ void argon(void)
     for(byte i=0 ; i<MAX_STARS ; i++)
     {
         byte star = rng() & 15;
-        int vx = -1;
-        if (star == 15)
-            vx = -2;
             
         byte c = rng() & (SCREEN_COLUMNS-1);
         byte r = rng() & (SCREEN_ROWS-1);
             
         stars[i] = (Mob){
-            .vx=vx,
+            .vx=-1,
             .vy=0,
             .sprite = (Sprite){.tile=&TILES[ (star * 8)+STARS ], .mask=&MASKS[STAR_MASK], .x=c*8, .y=r*8,},
             .active=TRUE,
@@ -53,7 +50,7 @@ void argon(void)
         };
     }
     
-    wave_timer = millis() + 3800;
+    wave_timer = millis() + 2800;
     
     for(ever)
     {
@@ -65,23 +62,33 @@ void argon(void)
             {
                 if (WAVES[wave_index][i] > 0)
                 {
-                    mobs[i] = (Mob){
-                        .vx=STATS[WAVES[wave_index][i]>>3].vx,
-                        .vy=STATS[WAVES[wave_index][i]>>3].vy,
-                        .sprite = (Sprite){
-                            .tile=&TILES[ WAVES[wave_index][i] ], 
-                            .mask=&MASKS[ WAVES[wave_index][i] ], 
-                            .x=SCREEN_WIDTH-8, 
-                            .y=i*8,
-                        },
-                        .active=TRUE,
-                        
-                        .type=WAVES[wave_index][i],
-                    };
+                    for(byte m=0; m<MAX_MOBS-1 ; m++)
+                    {
+                        if (!mobs[m].active)
+                        {
+                            mobs[m] = (Mob){
+                                .vx=STATS[WAVES[wave_index][i]>>3].vx,
+                                .vy=STATS[WAVES[wave_index][i]>>3].vy,
+                                .sprite = (Sprite){
+                                    .tile=&TILES[ WAVES[wave_index][i] ], 
+                                    .mask=&MASKS[ WAVES[wave_index][i] ], 
+                                    .x=SCREEN_WIDTH-8, 
+                                    .y=i*8,
+                                },
+                                .active=TRUE,
+                                
+                                .type=WAVES[wave_index][i],
+                            };
+                            break;
+                        }
+                    }
                 }
             }
             
-            wave_timer = t+2400;
+            wave_timer = t+WAVES[wave_index][8];
+            wave_index += 1;
+            if (wave_index == WAVE_COUNT)
+                wave_index = 0;
         }
         
         buttons = read_buttons();
@@ -100,7 +107,11 @@ void argon(void)
                     {
                         if (mobs[i].active && 
                             player->sprite.y+4 > mobs[i].sprite.y && 
-                            player->sprite.y < mobs[i].sprite.y+8)
+                            player->sprite.y < mobs[i].sprite.y+8 &&
+                            (   mobs[i].type == FRIGATE ||
+                                mobs[i].type == DART ||
+                                mobs[i].type == SAUCER ||
+                                mobs[i].type == FIGHTER) )
                         {
                             hit_x = mobs[i].sprite.x;
                             
@@ -169,6 +180,139 @@ void argon(void)
                     if (mobs[i].type == DART && mobs[i].sprite.x < -8)
                         mobs[i].active = FALSE;
                         
+                    if (mobs[i].type == FRIGATE && (mobs[i].sprite.y < 0 || mobs[i].sprite.y>SCREEN_HEIGHT-8))
+                        mobs[i].vy *= -1;
+                        
+                    if (mobs[i].type == FRIGATE && (mobs[i].sprite.y == player->sprite.y))
+                    {
+                        for (byte m=0 ; m<MAX_MOBS-1 ; m++)
+                        {
+                            if (!mobs[m].active)
+                            {
+                                mobs[m] = (Mob){
+                                    .vx=STATS[MISSILE>>3].vx,
+                                    .vy=STATS[MISSILE>>3].vy,
+                                    .sprite = (Sprite){
+                                        .tile=&TILES[ MISSILE ], 
+                                        .mask=&MASKS[ MISSILE ], 
+                                        .x=SCREEN_WIDTH-12, 
+                                        .y=mobs[i].sprite.y+4,
+                                    },
+                                    .active=TRUE,
+                                    
+                                    .type=MISSILE,
+                                };
+                    
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (mobs[i].type == FIGHTER && player->sprite.y > mobs[i].sprite.y)
+                        mobs[i].vy = 1;
+                    else if (mobs[i].type == FIGHTER && player->sprite.y < mobs[i].sprite.y)
+                        mobs[i].vy = -1;
+                    else if (mobs[i].type == FIGHTER && player->sprite.y == mobs[i].sprite.y && mobs[i].animation_timer <= t)
+                    {
+                        mobs[i].vy = 0;
+                        
+                        for (byte m=0 ; m<MAX_MOBS-1 ; m++)
+                        {
+                            if (!mobs[m].active)
+                            {
+                                mobs[m] = (Mob){
+                                    .vx=STATS[PLASMA_BOLT>>3].vx,
+                                    .vy=STATS[PLASMA_BOLT>>3].vy,
+                                    .sprite = (Sprite){
+                                        .tile=&TILES[ PLASMA_BOLT ], 
+                                        .mask=&MASKS[ PLASMA_BOLT ], 
+                                        .x=mobs[i].sprite.x, 
+                                        .y=mobs[i].sprite.y+4,
+                                    },
+                                    .active=TRUE,
+                                    
+                                    .type=PLASMA_BOLT,
+                                };
+                                mobs[i].animation_timer = t+160;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (mobs[i].type == FIGHTER && (mobs[i].sprite.x < 64 || mobs[i].sprite.x > SCREEN_WIDTH-8))
+                        mobs[i].vx *= -1;
+                    
+                    if(mobs[i].type == FIGHTER)
+                    {
+                        for(byte j=0 ; j<MAX_MOBS-1 ; j++)
+                        {
+                            if (j != i &&
+                                mobs[j].type == FIGHTER &&
+                                mobs[i].sprite.x+8 > mobs[j].sprite.x &&
+                                mobs[i].sprite.x < mobs[j].sprite.x+8 &&
+                                mobs[i].sprite.y+8 > mobs[j].sprite.y &&
+                                mobs[i].sprite.y < mobs[j].sprite.y+8)
+                            {
+                                mobs[i].sprite.y += (-1*mobs[i].vy)*2;
+                                mobs[j].sprite.y += mobs[i].vy*2;
+                                
+                                mobs[i].vx *= -1;
+                            }
+                        }
+                    }
+                    
+                    if(mobs[i].type == SAUCER)
+                    {
+                        if (mobs[i].animation_timer <= t)
+                        {
+                            if (mobs[i].vy != 0)
+                            {
+                                mobs[i].vy = 0;
+                                mobs[i].animation_timer = t+700;
+                            }
+                            else 
+                            {
+                                mobs[i].animation_timer = t+700;
+                                for (byte m=0 ; m<MAX_MOBS-1 ; m++)
+                                {
+                                    if (!mobs[m].active)
+                                    {
+                                        mobs[m] = (Mob){
+                                            .vx=STATS[MINE>>3].vx,
+                                            .vy=STATS[MINE>>3].vy,
+                                            .sprite = (Sprite){
+                                                .tile=&TILES[ MINE ], 
+                                                .mask=&MASKS[ MINE ], 
+                                                .x=mobs[i].sprite.x+10, 
+                                                .y=mobs[i].sprite.y+4,
+                                            },
+                                            .active=TRUE,
+                                            
+                                            .type=MINE,
+                                        };
+                            
+                                        break;
+                                    }
+                                }
+                                if (rng() & 1)
+                                {
+                                    mobs[i].vy = -1;
+                                }
+                                else 
+                                {
+                                    mobs[i].vy = 1;
+                                }
+                            }
+                        }
+                        
+                        if (mobs[i].sprite.y < 0 || mobs[i].sprite.y > SCREEN_HEIGHT-8)
+                            mobs[i].vy *= -1;
+                    }
+                    
+                    // CLEANUP    
+                    if ( (mobs[i].type == PLASMA_BOLT || mobs[i].type == MISSILE || mobs[i].type == MINE) && mobs[i].sprite.x < 0)
+                        mobs[i].active = FALSE;
+                        
                     if (mobs[i].type == WRECK)
                     {
                         mobs[i].type = EXPLOSION_1;
@@ -211,16 +355,7 @@ void argon(void)
                     {    
                         draw_string(&GAME_OVER[0], 32, 24);
                         
-                        draw_tile_masked(&DIGITS[(score % 10)*8], &MASKS[0], 10*8, 40);
-                        score /= 10;
-                        draw_tile_masked(&DIGITS[(score % 10)*8], &MASKS[0], 9*8, 40);
-                        score /= 10;
-                        draw_tile_masked(&DIGITS[(score % 10)*8], &MASKS[0], 8*8, 40);
-                        score /= 10;
-                        draw_tile_masked(&DIGITS[(score % 10)*8], &MASKS[0], 7*8, 40);
-                        score /= 10;
-                        draw_tile_masked(&DIGITS[(score % 10)*8], &MASKS[0], 6*8, 40);
-                        //score /= 10;
+                        draw_int(score, 5, 6*8, 5*8);
                         
                         draw();
                         
@@ -251,14 +386,11 @@ void argon(void)
                 if (stars[i].sprite.x < -8)
                 {
                     byte star = rng() & 15;
-                    int vx = -1;
-                    if (star == 15)
-                        vx = -2;
                     
                     byte r = rng() & (SCREEN_ROWS-1);
                         
                     stars[i] = (Mob){
-                        .vx=vx,
+                        .vx=-1,
                         .vy=0,
                         .sprite = (Sprite){ .tile=&TILES[ (star * 8)+STARS ], 
                                             .mask=&MASKS[STAR_MASK], 
@@ -291,15 +423,7 @@ void argon(void)
         {
             buffer[ (7*SCREEN_WIDTH+(4*8)) + i ] |= 0xc0;
         }
-            
+        
         draw();
-    }
-}
-
-void draw_string(const __memx char *string, int x, int y)
-{
-    for(byte i=0 ; string[i] != '\0' ; i++)
-    {
-        draw_tile_masked(&ASCII[(string[i]-32)*8], &MASKS[0], x+(i*8), y);
     }
 }

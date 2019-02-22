@@ -3,6 +3,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+#include "ASCII.h"
+
 volatile dword _millis = 0;
 
 const __memx Tune *current_tune;
@@ -253,6 +255,89 @@ void display_on(void)
     shift_out_byte(0xAF);       // DISPLAYON
     
     PORTB |= 1 << DC;           // DATA
+}
+
+void draw_pixel(int x, int y)
+{
+    buffer[ (y>>3) * SCREEN_WIDTH + x ] |= 1 << (y&7);
+}
+
+void draw_tile(const byte __flash *tile, const byte __flash *mask, int x, int y)
+{
+    /* is the tile actually visible */
+    if (x < -7 || x >= SCREEN_WIDTH || y < -7 || y >= SCREEN_HEIGHT)
+        return;
+    
+    
+    int y_ = y;
+    
+    if (y < 0)
+        y_ = 0-y;
+        
+    int tile_start = ((y_ >> 3) * SCREEN_WIDTH) + x;
+    
+    byte y_offset_a = y & 7; // y % 8
+    byte y_offset_b = 8-y_offset_a;
+    
+    byte tile_index = 0;
+    byte tile_width = 8;
+    if (x < 0)
+    {
+        tile_start -= x;
+        tile_index = 0-x;
+        tile_width -= tile_index;
+    }
+    
+    if (x > SCREEN_WIDTH-8)
+    {
+        tile_width = SCREEN_WIDTH-x;
+    }
+    
+    if (y < 0)
+    {
+        y_offset_a = 8;
+        y_offset_b = 0-y;
+        tile_start -= SCREEN_WIDTH;
+    }
+    
+    if (y > SCREEN_HEIGHT-8)
+    {
+        y_offset_b = 8;
+    }
+    
+    for(byte tile_offset=0 ; tile_offset<tile_width ; tile_offset++, tile_index++)
+    {
+        if (y_offset_a < 8)
+        {
+            buffer[tile_start+tile_offset] &= (mask[tile_index] << y_offset_a) | ~(0xff << y_offset_a);
+            buffer[tile_start+tile_offset] |= tile[tile_index] << y_offset_a;
+        }
+        if (y_offset_b < 8)
+        {
+            buffer[tile_start+SCREEN_WIDTH+tile_offset] &= (mask[tile_index] >> y_offset_b) | ~(0xff >> y_offset_b);
+            buffer[tile_start+SCREEN_WIDTH+tile_offset] |= tile[tile_index] >> y_offset_b;
+        }
+    }
+}
+
+void draw_string(const __memx char *string, int x, int y)
+{
+    for(byte i=0 ; string[i] != '\0' ; i++)
+    {
+        draw_tile(&ASCII[(string[i]-32)*8], &BLOCK_MASKS[OPAQUE], x+(i*8), y);
+    }
+}
+
+void draw_int(int n, byte width, int x, int y)
+{
+    //TODO: Negative numbers
+    long n_;
+    for (byte i=0 ; i<width ; i++)
+    {
+        n_ = (6554*(long)n)>>16;
+        draw_tile(&DIGITS[(n - (n_*10))*8], &BLOCK_MASKS[OPAQUE], x+((width-i-1)*8), y);
+        n = (int)n_;
+    }
 }
 
 /* Sound Functions */

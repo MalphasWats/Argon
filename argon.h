@@ -2,7 +2,7 @@
 #define ARGON_H
 
 #include "SPIKE.h"
-#include "tile-engine.h"
+#include "tilemap-engine.h"
 #include "ASCII.h"
 
 typedef struct Mob {
@@ -44,7 +44,7 @@ static const __flash byte TILES[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 
     0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 
     0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 
-    0x00, 0x04, 0x0a, 0x04, 0x00, 0x00, 0x00, 0x00, 
+    0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
     
     0x00, 0x00, 0x10, 0x38, 0x10, 0x00, 0x00, 0x00, // Explosions (25)
     0x00, 0x10, 0x38, 0x7c, 0x38, 0x10, 0x00, 0x00, 
@@ -68,8 +68,13 @@ static const __flash byte MASKS[] = {
 };
 
 #define PLAYER_SHIP 1*8
+#define FRIGATE     5*8
 #define DART        6*8
+#define SAUCER      7*8
+#define FIGHTER     8*8
 #define PLASMA_BOLT 2*8
+#define MISSILE     3*8
+#define MINE        4*8
 
 #define STARS       9*8
 #define STAR_MASK   9*8
@@ -87,9 +92,23 @@ static const __flash byte MASKS[] = {
 
 #define EXPLOSION_FRAME_LENGTH 100
 
-
-static const __flash word WAVES[][8] = {
-    {0, DART, DART, DART, DART, DART, DART, 0},
+#define WAVE_COUNT 15
+static const __flash word WAVES[][9] = {
+    {0, DART, DART, DART, DART, DART, DART, 0, 2200},
+    {0, FRIGATE, 0, 0, 0, 0, FRIGATE, 0, 1800},
+    {0, 0, 0, FIGHTER, FIGHTER, 0, 0, 0, 2200},
+    {SAUCER, 0, 0, 0, 0, 0, 0, 0, 1200},
+    {0, DART, FRIGATE, DART, DART, FRIGATE, DART, 0, 1000},
+    {0, DART, DART, DART, DART, DART, DART, 0, 2200},
+    {0, SAUCER, 0, FIGHTER, FIGHTER, 0, SAUCER, 0, 2600},
+    {SAUCER, 0, 0, 0, 0, 0, 0, SAUCER, 1200},
+    {0, 0, 0, FIGHTER, FIGHTER, 0, 0, 0, 2200},
+    {0, DART, DART, DART, DART, DART, DART, 0, 2200},
+    {0, DART, DART, DART, DART, DART, DART, 0, 1800},
+    {0, DART, DART, DART, DART, DART, DART, 0, 1500},
+    {0, FIGHTER, 0, FIGHTER, FIGHTER, 0, FIGHTER, 0, 2200},
+    {0, DART, FRIGATE, DART, DART, FRIGATE, DART, 0, 1000},
+    {0, DART, FRIGATE, FIGHTER, FIGHTER, FRIGATE, DART, 0, 3000},
 };
 
 typedef struct Statblock {
@@ -101,15 +120,15 @@ typedef struct Statblock {
 
 static const __flash Statblock STATS[] = {
    // vx    yx   score
-    {0x00, 0x00, 0,},
-    {0x00, 0x00, 0,}, // PLAYER
-    {0x00, 0x00, 0,}, // PLASMA_BOLT
-    {0x00, 0x00, 0,}, // MISSILE
-    {0x00, 0x00, 0,}, // MINE
-    {0x00, 0x00, 0,}, // Frigate
-    {-2,    0,  5,}, // Dart
-    {0x00, 0x00, 0,}, // Saucer
-    {0x00, 0x00, 0,}, // Fighter
+    {0,     0,      0,},
+    {0,     0,      0,}, // PLAYER
+    {-4,    0,      0,}, // PLASMA_BOLT
+    {-3,    0,      0,}, // MISSILE
+    {-1,    0,      0,}, // MINE
+    {0,     1,      8,}, // Frigate
+    {-2,    0,      5,}, // Dart
+    {0,     0,      12,}, // Saucer
+    {-1,    0,      6,}, // Fighter
 };
 
 static const __flash char GAME_OVER[] = "GAME OVER";
@@ -117,11 +136,9 @@ static const __flash char GAME_OVER[] = "GAME OVER";
 
 #define PLAYER_SPEED 2
 
-#define WEAPON_HEAT_RATE 8
+#define WEAPON_HEAT_RATE 16
 #define WEAPON_COOL_RATE 4
 
 void argon(void);
-
-void draw_string(const __memx char *string, int x, int y);
 
 #endif

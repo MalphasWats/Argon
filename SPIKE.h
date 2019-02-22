@@ -165,6 +165,14 @@ static const __flash Image LOGO = {
     },
 };
 
+static const __flash byte BLOCK_MASKS[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+};
+
+#define OPAQUE      0
+#define TRANSPARENT 8
+
 #define rngM 251
 #define rngA 11
 #define rngC 3
@@ -187,6 +195,13 @@ void clear_buffer(void);
 void draw(void);
 void display_off(void);
 void display_on(void);
+
+/* Draw Functions */
+
+void draw_pixel(int x, int y);
+void draw_tile(const byte __flash *glyph, const byte __flash *mask, int x, int y);
+void draw_string(const __memx char *string, int x, int y);
+void draw_int(int n, byte width, int x, int y);
 
 void note(byte note, word dur);
 void click( void );

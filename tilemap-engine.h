@@ -1,5 +1,5 @@
-#ifndef TILE_ENGINE_H
-#define TILE_ENGINE_H
+#ifndef TILEMAP_ENGINE_H
+#define TILEMAP_ENGINE_H
 
 #include "SPIKE.h"
 
@@ -23,12 +23,8 @@ typedef struct Viewport {
     int y;
 } Viewport;
 
-void draw_tile(const byte __flash *tile, int x, int y);
-void draw_tile_masked(const byte __flash *glyph, const byte __flash *mask, int x, int y);
 void draw_map(const Map __memx *map, const __flash byte *tileset);
 void draw_sprite(Sprite *s);
-
-void draw_pixel(int x, int y);
 
 void center_on_sprite(Sprite *s, const Map __memx *map);
 
