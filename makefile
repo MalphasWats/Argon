@@ -40,12 +40,14 @@ fuse:
 clean:
 	rm -f $(TARGET).hex $(TARGET).elf $(OBJECTS)
 
+size: $(TARGET).elf
+	avr-size --format=avr --mcu=$(DEVICE) $(TARGET).elf
+	avr-nm -S -td --size-sort $(TARGET).elf
+
 # file targets:
 $(TARGET).elf: $(OBJECTS)
 	$(COMPILE) -o $(TARGET).elf $(OBJECTS)
-
+    
 $(TARGET).hex: $(TARGET).elf
 	rm -f $(TARGET).hex
 	avr-objcopy -j .text -j .data -O ihex $(TARGET).elf $(TARGET).hex
-	avr-size --format=avr --mcu=$(DEVICE) $(TARGET).elf
-	avr-nm -S -td --size-sort $(TARGET).elf

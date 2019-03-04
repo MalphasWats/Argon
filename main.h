@@ -3,7 +3,7 @@
 
 #include "SPIKE.h"
 
-static const __flash Image TITLE[] = {
+static const __flash Image TITLE = {
     .height = 64,
     .width = 128,
     .data = {

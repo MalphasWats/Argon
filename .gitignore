@@ -1,3 +1,6 @@
 
 test_build/*
 .DS_Store
+*.o
+*.hex
+*.elf
