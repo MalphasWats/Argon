@@ -5,19 +5,18 @@ int main (void)
 {    
     initialise();
     
-    dword t = 0;
+    uint32_t t = 0;
 
-    byte buttons;
+    uint8_t buttons;
     
-    byte debounce = 0;
+    uint8_t debounce = 0;
     bool button_was_down = FALSE;
     
     for(ever)
     {
         t = millis();
         
-        for (word i=0 ; i<(SCREEN_WIDTH*SCREEN_ROWS) ; i++)
-            buffer[i] = TITLE[i];
+        draw_image(&TITLE, 0, 0);
         
         draw();
         

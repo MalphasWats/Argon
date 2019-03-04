@@ -6,21 +6,21 @@ Mob stars[MAX_STARS];
 
 void argon(void)
 {
-    dword t = 0;
-    dword move_timer = 0;
-    dword shoot_timer = 0;
-    dword star_timer = 0;
-    dword wave_timer = 0;
+    uint32_t t = 0;
+    uint32_t move_timer = 0;
+    uint32_t shoot_timer = 0;
+    uint32_t star_timer = 0;
+    uint32_t wave_timer = 0;
     
-    byte wave_index = 0;
+    uint8_t wave_index = 0;
     
-    word score = 0;
+    uint16_t score = 0;
     
-    byte buttons;
+    uint8_t buttons;
     
     bool firing = FALSE;
-    int hit_x = 0;
-    int weapon_temp = 0;
+    int16_t hit_x = 0;
+    int16_t weapon_temp = 0;
 
     mobs[MAX_MOBS-1] = (Mob){
         .vx=0,
@@ -33,12 +33,12 @@ void argon(void)
     
     Mob *player = &mobs[MAX_MOBS-1];
     
-    for(byte i=0 ; i<MAX_STARS ; i++)
+    for(uint8_t i=0 ; i<MAX_STARS ; i++)
     {
-        byte star = rng() & 15;
+        uint8_t star = rng() & 15;
             
-        byte c = rng() & (SCREEN_COLUMNS-1);
-        byte r = rng() & (SCREEN_ROWS-1);
+        uint8_t c = rng() & (SCREEN_COLUMNS-1);
+        uint8_t r = rng() & (SCREEN_ROWS-1);
             
         stars[i] = (Mob){
             .vx=-1,
@@ -58,11 +58,11 @@ void argon(void)
         
         if (wave_timer <= t)
         {
-            for(byte i=0 ; i<8 ; i++)
+            for(uint8_t i=0 ; i<8 ; i++)
             {
                 if (WAVES[wave_index][i] > 0)
                 {
-                    for(byte m=0; m<MAX_MOBS-1 ; m++)
+                    for(uint8_t m=0; m<MAX_MOBS-1 ; m++)
                     {
                         if (!mobs[m].active)
                         {
@@ -103,7 +103,7 @@ void argon(void)
                     hit_x = SCREEN_WIDTH;
                     firing = TRUE;
                     
-                    for (byte i=0 ; i<MAX_MOBS-1 ; i++)
+                    for (uint8_t i=0 ; i<MAX_MOBS-1 ; i++)
                     {
                         if (mobs[i].active && 
                             player->sprite.y+4 > mobs[i].sprite.y && 
@@ -169,7 +169,7 @@ void argon(void)
                     player->sprite.x -= PLAYER_SPEED;
             }
             
-            for(byte i=0 ; i<MAX_MOBS-1 ; i++)
+            for(uint8_t i=0 ; i<MAX_MOBS-1 ; i++)
             {
                 if (mobs[i].active)
                 {
@@ -185,7 +185,7 @@ void argon(void)
                         
                     if (mobs[i].type == FRIGATE && (mobs[i].sprite.y == player->sprite.y))
                     {
-                        for (byte m=0 ; m<MAX_MOBS-1 ; m++)
+                        for (uint8_t m=0 ; m<MAX_MOBS-1 ; m++)
                         {
                             if (!mobs[m].active)
                             {
@@ -216,7 +216,7 @@ void argon(void)
                     {
                         mobs[i].vy = 0;
                         
-                        for (byte m=0 ; m<MAX_MOBS-1 ; m++)
+                        for (uint8_t m=0 ; m<MAX_MOBS-1 ; m++)
                         {
                             if (!mobs[m].active)
                             {
@@ -244,7 +244,7 @@ void argon(void)
                     
                     if(mobs[i].type == FIGHTER)
                     {
-                        for(byte j=0 ; j<MAX_MOBS-1 ; j++)
+                        for(uint8_t j=0 ; j<MAX_MOBS-1 ; j++)
                         {
                             if (j != i &&
                                 mobs[j].type == FIGHTER &&
@@ -273,7 +273,7 @@ void argon(void)
                             else 
                             {
                                 mobs[i].animation_timer = t+700;
-                                for (byte m=0 ; m<MAX_MOBS-1 ; m++)
+                                for (uint8_t m=0 ; m<MAX_MOBS-1 ; m++)
                                 {
                                     if (!mobs[m].active)
                                     {
@@ -359,11 +359,11 @@ void argon(void)
                         
                         draw();
                         
-                        for(byte j=0 ; j<MAX_MOBS-1 ; j++)
+                        for(uint8_t j=0 ; j<MAX_MOBS-1 ; j++)
                         {
                             mobs[j].active = FALSE;
                         }
-                        dword d = t+8000;
+                        uint32_t d = t+8000;
                         while (d>t)
                             t=millis();
                         return;
@@ -376,7 +376,7 @@ void argon(void)
         
         clear_buffer();
         
-        for (byte i=0 ; i<MAX_STARS ; i++)
+        for (uint8_t i=0 ; i<MAX_STARS ; i++)
         {
             draw_sprite(&stars[i].sprite);
             
@@ -385,9 +385,9 @@ void argon(void)
                 stars[i].sprite.x += stars[i].vx;
                 if (stars[i].sprite.x < -8)
                 {
-                    byte star = rng() & 15;
+                    uint8_t star = rng() & 15;
                     
-                    byte r = rng() & (SCREEN_ROWS-1);
+                    uint8_t r = rng() & (SCREEN_ROWS-1);
                         
                     stars[i] = (Mob){
                         .vx=-1,
@@ -407,7 +407,7 @@ void argon(void)
         if (star_timer <= t)
             star_timer = t+25;
         
-        for (byte i=0 ; i<MAX_MOBS ; i++)
+        for (uint8_t i=0 ; i<MAX_MOBS ; i++)
         {
             if (mobs[i].active)
                 draw_sprite(&mobs[i].sprite);
@@ -415,11 +415,11 @@ void argon(void)
         
         if (firing)
         {
-            for (byte x=player->sprite.x+9 ; x<hit_x ; x++)
+            for (uint8_t x=player->sprite.x+9 ; x<hit_x ; x++)
                 draw_pixel(x, player->sprite.y+4);
         }
         
-        for(byte i=0 ; i<(weapon_temp >> 2) ; i++)
+        for(uint8_t i=0 ; i<(weapon_temp >> 2) ; i++)
         {
             buffer[ (7*SCREEN_WIDTH+(4*8)) + i ] |= 0xc0;
         }

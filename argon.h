@@ -8,16 +8,16 @@
 typedef struct Mob {
     Sprite sprite;
     
-    int vx;
-    int vy;
+    int16_t vx;
+    int16_t vy;
     
     bool active;
     
-    word type;
-    dword animation_timer;
+    uint16_t type;
+    uint32_t animation_timer;
 } Mob;
 
-static const __flash byte TILES[] = {
+static const __flash uint8_t TILES[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // SPACE
     
     0x28, 0xfe, 0xd6, 0x54, 0x7c, 0x28, 0x10, 0x10, // PLAYER
@@ -52,7 +52,7 @@ static const __flash byte TILES[] = {
     0x10, 0x00, 0x08, 0x81, 0x10, 0x04, 0x00, 0x10, 
 };
 
-static const __flash byte MASKS[] = {
+static const __flash uint8_t MASKS[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // SPACE
     
     0xd7, 0x01, 0x01, 0x83, 0x83, 0xc7, 0xef, 0xef, 
@@ -93,7 +93,7 @@ static const __flash byte MASKS[] = {
 #define EXPLOSION_FRAME_LENGTH 100
 
 #define WAVE_COUNT 15
-static const __flash word WAVES[][9] = {
+static const __flash uint16_t WAVES[][9] = {
     {0, DART, DART, DART, DART, DART, DART, 0, 2200},
     {0, FRIGATE, 0, 0, 0, 0, FRIGATE, 0, 1800},
     {0, 0, 0, FIGHTER, FIGHTER, 0, 0, 0, 2200},
@@ -112,10 +112,10 @@ static const __flash word WAVES[][9] = {
 };
 
 typedef struct Statblock {
-    int vx;
-    int vy;
+    int16_t vx;
+    int16_t vy;
     
-    word score;
+    uint8_t score;
 } Statblock;
 
 static const __flash Statblock STATS[] = {
