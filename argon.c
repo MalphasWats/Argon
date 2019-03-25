@@ -25,7 +25,7 @@ void argon(void)
     mobs[MAX_MOBS-1] = (Mob){
         .vx=0,
         .vy=0,
-        .sprite = (Sprite){.tile=&TILES[PLAYER_SHIP], .mask=&MASKS[PLAYER_SHIP], .x=2, .y=32-4,},
+        .sprite = (Sprite){.tile=&TILES[PLAYER_SHIP], .mask=&MASKS[PLAYER_SHIP], .x=2, .y=32-4, .width=8, .height=8,},
         .active=TRUE,
         
         .type = PLAYER_SHIP,
@@ -43,7 +43,14 @@ void argon(void)
         stars[i] = (Mob){
             .vx=-1,
             .vy=0,
-            .sprite = (Sprite){.tile=&TILES[ (star * 8)+STARS ], .mask=&MASKS[STAR_MASK], .x=c*8, .y=r*8,},
+            .sprite = (Sprite){
+                .tile=&TILES[ (star * 8)+STARS ], 
+                .mask=&MASKS[STAR_MASK], 
+                .x=c*8, 
+                .y=r*8,
+                .width=8, 
+                .height=8,
+            },
             .active=TRUE,
             
             .type=STARS,
@@ -74,6 +81,8 @@ void argon(void)
                                     .mask=&MASKS[ WAVES[wave_index][i] ], 
                                     .x=SCREEN_WIDTH-8, 
                                     .y=i*8,
+                                    .width=8, 
+                                    .height=8,
                                 },
                                 .active=TRUE,
                                 
@@ -197,6 +206,8 @@ void argon(void)
                                         .mask=&MASKS[ MISSILE ], 
                                         .x=SCREEN_WIDTH-12, 
                                         .y=mobs[i].sprite.y+4,
+                                        .width=8, 
+                                        .height=8,
                                     },
                                     .active=TRUE,
                                     
@@ -228,6 +239,8 @@ void argon(void)
                                         .mask=&MASKS[ PLASMA_BOLT ], 
                                         .x=mobs[i].sprite.x, 
                                         .y=mobs[i].sprite.y+4,
+                                        .width=8, 
+                                        .height=8,
                                     },
                                     .active=TRUE,
                                     
@@ -285,6 +298,8 @@ void argon(void)
                                                 .mask=&MASKS[ MINE ], 
                                                 .x=mobs[i].sprite.x+10, 
                                                 .y=mobs[i].sprite.y+4,
+                                                .width=8, 
+                                                .height=8,
                                             },
                                             .active=TRUE,
                                             
@@ -396,6 +411,8 @@ void argon(void)
                                             .mask=&MASKS[STAR_MASK], 
                                             .x=SCREEN_WIDTH+8, 
                                             .y=r*8,
+                                            .width=8, 
+                                            .height=8,
                         },
                         .active=TRUE,
                         .type=STARS,
@@ -416,7 +433,7 @@ void argon(void)
         if (firing)
         {
             for (uint8_t x=player->sprite.x+9 ; x<hit_x ; x++)
-                draw_pixel(x, player->sprite.y+4);
+                draw_pixel(x, player->sprite.y);
         }
         
         for(uint8_t i=0 ; i<(weapon_temp >> 2) ; i++)

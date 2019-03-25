@@ -4,10 +4,10 @@
 
 TARGET      = argon
 
-SPIKELIB    = ../glyphlib
-VPATH       = $(SPIKELIB)
+GLYPHLIB    = ../glyphlib
+VPATH       = $(GLYPHLIB)
 
-LIB        = SPIKE.o tilemap-engine.o
+LIB        = GLYPH.o tilemap-engine.o
 BUILD      = argon.o main.o
 
 OBJECTS    =  $(LIB) $(BUILD)
@@ -23,7 +23,7 @@ C_FLAGS    = -Wl,--gc-sections -Wl,--relax -ffunction-sections -fdata-sections -
 FUSES      = -U lfuse:w:0xfe:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m  # External Xtal
 
 AVRDUDE = sudo avrdude -b 500000 $(PROGRAMMER) -p $(DEVDUDE)
-COMPILE = avr-gcc -Wall -O3 -mmcu=$(DEVICE) $(C_FLAGS) -I$(SPIKELIB)
+COMPILE = avr-gcc -Wall -O3 -mmcu=$(DEVICE) $(C_FLAGS) -I$(GLYPHLIB)
 
 # symbolic targets:
 all:	$(TARGET).hex

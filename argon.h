@@ -1,7 +1,7 @@
 #ifndef ARGON_H
 #define ARGON_H
 
-#include "SPIKE.h"
+#include "GLYPH.h"
 #include "tilemap-engine.h"
 #include "ASCII.h"
 
