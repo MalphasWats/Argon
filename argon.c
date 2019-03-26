@@ -441,6 +441,8 @@ void argon(void)
             buffer[ (7*SCREEN_WIDTH+(4*8)) + i ] |= 0xc0;
         }
         
+        set_LED_brightness(BOTH, weapon_temp);
+        
         draw();
     }
 }
